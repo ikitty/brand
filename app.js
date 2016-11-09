@@ -1,4 +1,5 @@
 var path = require('path');
+var fs = require('fs');
 var express = require('express');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
@@ -7,10 +8,8 @@ var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 var flash = require('connect-flash');
 var multer  = require('multer');
-var favicon = require('serve-favicon');
 var settings = require('./settings');
 
-var fs = require('fs');
 var accessLog = fs.createWriteStream('access.log', {flags: 'a'});
 var errorLog = fs.createWriteStream('error.log', {flags: 'a'});
 
@@ -19,8 +18,7 @@ var app = express();
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.use(favicon(__dirname + '/public/images/favicon.ico'));
-app.use(logger('dev'));
+//app.use(logger('dev'));
 //app.use(logger({stream: accessLog}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({

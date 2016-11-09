@@ -2,6 +2,7 @@ var crypto = require('crypto'),
     fs = require('fs'),
     User = require('../models/user.js'),
     Post = require('../models/post.js'),
+    Cate = require('../models/cate.js'),
     Comment = require('../models/comment.js');
 
 module.exports = function(app) {
@@ -106,6 +107,34 @@ module.exports = function(app) {
     });
     });
 
+    //handle cate
+    app.get('/cate', checkLogin);
+    app.get('/cate', function (req, res) {
+        res.render('cate', {
+            title: '游戏名称',
+            user: req.session.user,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
+    });
+
+    app.post('/cate', checkLogin);
+    app.post('/cate', function (req, res) {
+        var currentUser = req.session.user,
+            cate = req.body.cate ,
+            D = new Cate(cate) ;
+
+        D.save(function (err) {
+            if (err) {
+                req.flash('error', err); 
+                return res.redirect('/');
+            }
+            req.flash('success', '操作成功!');
+            res.redirect('/');
+        });
+    });
+
+    //post
     app.get('/post', checkLogin);
     app.get('/post', function (req, res) {
         res.render('post', {
@@ -121,14 +150,14 @@ module.exports = function(app) {
         var currentUser = req.session.user,
         tags = [req.body.tag1, req.body.tag2, req.body.tag3],
         post = new Post(currentUser.name, currentUser.head, req.body.title, tags, req.body.post);
-    post.save(function (err) {
-        if (err) {
-            req.flash('error', err); 
-            return res.redirect('/');
-        }
-        req.flash('success', '发布成功!');
-        res.redirect('/');//发表成功跳转到主页
-    });
+        post.save(function (err) {
+            if (err) {
+                req.flash('error', err); 
+                return res.redirect('/');
+            }
+            req.flash('success', '发布成功!');
+            res.redirect('/');//发表成功跳转到主页
+        });
     });
 
     app.get('/logout', checkLogin);
