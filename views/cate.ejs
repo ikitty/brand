@@ -1,6 +1,53 @@
 <%- include header %>
-<form method="post" >
-    标题：<input type="text" name="cate" /><br />
-    <input type="submit" value="添加" />
+
+<div class="cate_hd">添加品牌</div>
+<form method="post" class="cate_add form-horizontal">
+    <div class="form-group">
+        <label for="iptTit" class="form_key ">名称</label>
+        <div class="form_val">
+            <input type="text" name="name" class="form-control" id="iptTit">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form_key ">&nbsp;</label>
+        <div class="form_val">
+            <input type="submit" class="btn btn-success" value="添加">
+        </div>
+    </div>
 </form>
+
+<div class="cate_hd">品牌列表</div>
+<div class="cate_bd">
+    <ul>
+    <% posts.forEach(function (post, index) { %>
+        <li>
+            <%= post.name %> 
+            <a class="btn btn-default btn_edit" href="javascript:;">编辑</a>
+            <a class="btn btn-danger" href="/remove_cate/<%= post.name %>">删除</a>
+            <div class="edit_area " style="display:none">
+                <input type="text" name="name" value="<%= post.name %>">
+                <span class="btn btn-default btn_update"  data-href="/edit_cate/<%= post.name %>">提交</span>
+                <a class="btn btn-danger btn_cancel" href="javascript:;">取消</a>
+            </div>
+        </li>
+    <% }) %>
+    </ul>
+</div>
+
+<script>
+(()=>{
+    $('.btn_edit').click(function(e) {
+        $(this).parent().children('.edit_area').show().find('input').focus();;
+    })
+    $('.btn_update').click(function(e) {
+        var url = $(this).data('href')
+        url += '/' + encodeURI($(this).prev().val())
+        window.location.href = url ;
+    })
+    $('.btn_cancel').click(function(e) {
+        $(this).parent().hide();
+    })
+})();
+</script>
+
 <%- include footer %>

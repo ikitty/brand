@@ -1,7 +1,7 @@
 var mongodb = require('./db')
 
-function Cate(cate) {
-    this.cate = cate;
+function Cate(name) {
+    this.name = name;
 }
 
 module.exports = Cate;
@@ -9,21 +9,20 @@ module.exports = Cate;
 //存储一篇文章及其相关信息
 Cate.prototype.save = function(callback) {
     var date = new Date();
-    //存储各种时间格式，方便以后扩展
+
     var time = {
         date: date,
         year : date.getFullYear(),
         month : date.getFullYear() + "-" + (date.getMonth() + 1),
         day : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
-        minute : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + 
-            date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
+        minute : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
     }
-    //要存入数据库的文档
+
     var D = {
-        cate: this.cate,
+        name: this.name,
         time: time
     };
-    //打开数据库
+
     mongodb.open(function (err, db) {
         if (err) {
             return callback(err);
@@ -47,3 +46,79 @@ Cate.prototype.save = function(callback) {
     });
 };
 
+Cate.prototype.getAll = function(callback) {
+    mongodb.open(function (err, db) {
+        if (err) {
+            return callback(err);
+        }
+        db.collection('cate', function (err, collection) {
+            if (err) {
+                mongodb.close();
+                return callback(err);
+            }
+            collection.find().toArray((err, docs) => {
+                mongodb.close();
+                if (err) {
+                    return callback(er) ;
+                }
+                callback(null, docs)
+            })
+        });
+    });
+};
+
+Cate.prototype.remove = function(name, callback) {
+    mongodb.open(function (err, db) {
+        if (err) { return callback(err); }
+
+        db.collection('cate', function (err, collection) {
+            if (err) {
+                mongodb.close();
+                return callback(err);
+            }
+
+            collection.findOne({
+                "name": name
+            }, function (err, doc) {
+                if (err) {
+                    mongodb.close();
+                    return callback(err);
+                }
+
+                collection.remove({
+                    "name": name
+                }, { w: 1 }, function (err) {
+                    mongodb.close();
+                    if (err) {
+                        return callback(err);
+                    }
+                    callback(null);
+                });
+            });
+        });
+    });
+};
+
+Cate.prototype.update = function(old_name, name,  callback) {
+    mongodb.open(function (err, db) {
+        if (err) { return callback(err); }
+        db.collection('cate', function (err, collection) {
+            if (err) {
+                mongodb.close();
+                return callback(err);
+            }
+
+            collection.updateOne({
+                "name": old_name
+            }, {
+                $set: {name: name}
+            }, function (err) {
+                mongodb.close();
+                if (err) {
+                    return callback(err);
+                }
+                callback(null);
+            });
+        });
+    });
+};

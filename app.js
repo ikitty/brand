@@ -48,8 +48,11 @@ var router = require('./routes/');
 router(app);
 
 app.use(function (err, req, res, next) {
-    var meta = '[' + new Date() + '] ' + req.url + '\n';
-    errorLog.write(meta + err.stack + '\n\n');
+    var d = new Date();
+    var d1 = [d.getFullYear(), d.getMonth()+1, d.getDate()].join('-');
+    var d2 = [d.getHours(), d.getMinutes(), d.getSeconds()].join(':');
+    var meta = '\n[' + d1 + ' ' + d2 + '] ' + req.url + '\n';
+    errorLog.write(meta + err.stack + '\n');
     next();
 });
 
