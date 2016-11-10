@@ -3,7 +3,11 @@ ul,li {list-style:none;padding:0px;margin:0px;}
 textarea,
 select,
 input {box-sizing:border-box;}
-header{height:100px;background-color:#fff;line-height:30px;border-bottom:1px solid #DEDDDD;overflow:hidden;text-align:center;}
+header{position:relative;height:100px;background-color:#fff;line-height:30px;border-bottom:1px solid #DEDDDD;overflow:hidden;text-align:center;}
+
+/* welcome */
+.welcome {position:absolute;top:30px;right:20px;}
+
 
 section {position:relative;padding-left:200px;background-color:#F9F9F9;overflow:hidden;}
 
@@ -50,6 +54,10 @@ article{font-size:16px;min-height:700px;padding:20px 20px 20px 20px;background-c
 
 .cate_bd li .edit_area {position:absolute;left:0px;top:0px;width:100%;height:100%;background: #eee;}
 .cate_bd li .edit_area input {height: 28px;border: 1px solid #ccc;border-radius: 3px;padding: 6px;width: 135px;}
+
+/* admin */
+.admin_post_list {}
+.admin_post_list li {float:none;width:100%;padding:5px 0px;border-bottom:1px solid #ddd;}
 
 /* =====footer===== */
 .footer {height:100px;line-height:100px;background-color:#222;color:#ccc;font-family: verdana;text-align:center;}

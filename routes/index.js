@@ -28,6 +28,21 @@ module.exports = function(app) {
         });
     });
 
+    //postMange
+    app.get('/post_manage', function (req, res) {
+        Post.getPostList( 1, function (err, posts, total) {
+            if (err) {
+                posts = [];
+            } 
+            res.render('post_manage', {
+                title: '文章列表',
+                posts: posts,
+                success: req.flash('success').toString(),
+                error: req.flash('error').toString()
+            });
+        });
+    });
+
     app.get('/reg', checkNotLogin);
     app.get('/reg', function (req, res) {
         res.render('reg', {
@@ -90,22 +105,22 @@ module.exports = function(app) {
         //生成密码的 md5 值
         var md5 = crypto.createHash('md5'),
         password = md5.update(req.body.password).digest('hex');
-    //检查用户是否存在
-    User.get(req.body.name, function (err, user) {
-        if (!user) {
-            req.flash('error', '用户不存在!'); 
-            return res.redirect('/login');//用户不存在则跳转到登录页
-        }
-        //检查密码是否一致
-        if (user.password != password) {
-            req.flash('error', '密码错误!'); 
-            return res.redirect('/login');//密码错误则跳转到登录页
-        }
-        //用户名密码都匹配后，将用户信息存入 session
-        req.session.user = user;
-        req.flash('success', '登陆成功!');
-        res.redirect('/');//登陆成功后跳转到主页
-    });
+        //检查用户是否存在
+        User.get(req.body.name, function (err, user) {
+            if (!user) {
+                req.flash('error', '用户不存在!'); 
+                return res.redirect('/login');//用户不存在则跳转到登录页
+            }
+            //检查密码是否一致
+            if (user.password != password) {
+                req.flash('error', '密码错误!'); 
+                return res.redirect('/login');//密码错误则跳转到登录页
+            }
+            //用户名密码都匹配后，将用户信息存入 session
+            req.session.user = user;
+            req.flash('success', '登陆成功!');
+            res.redirect('/');//登陆成功后跳转到主页
+        });
     });
 
     //handle cate

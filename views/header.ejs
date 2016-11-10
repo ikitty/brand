@@ -14,20 +14,26 @@
     <% if (locals.cate) { %>
         <div class="sublogo"><%= cate%></div>
     <% } %>
+    <div class="welcome">
+        <% if (user) { %>
+        <span class="">欢迎您 <%= locals.user.name %>, </span>
+        <a href="/logout">退出</a>|
+        <a href="/post">添加信息</a>
+        <% } else { %>
+        <a title="登录" href="/login">登录</a>
+        <a title="注册" href="/reg">注册</a>
+        <% } %>
+    </div>
 </header>
 
 <section>
     <nav>
         <a title="主页" href="/">首页</a>
-        <a title="标签" href="/tags">标签</a>
         <% if (user) { %>
-        <a href="/post">文章</a>
-        <a href="/cate">品牌</a>
-        <a href="/logout">退出</a>
-        <% } else { %>
-        <a title="登录" href="/login">登录</a>
-        <a title="注册" href="/reg">注册</a>
+        <a href="/post_manage">文档管理</a>
+        <a href="/cate">品牌管理</a>
         <% } %>
+        <!--<a title="标签" href="/tags">标签</a>-->
         <!--<a title="存档" href="/archive">archive</a>-->
         <!--<a title="上传" href="/upload">upload</a>-->
         <!--<form action="/search" method="GET"><input type="text" name="keyword" placeholder="SEARCH" class="search" /></form>-->

@@ -43,6 +43,11 @@ app.use(session({
 app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req, res, next) => {
+    res.locals.user = req.session.user
+    next()
+});
+
 
 var router = require('./routes/');
 router(app);
