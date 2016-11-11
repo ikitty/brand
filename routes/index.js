@@ -3,6 +3,8 @@ var crypto = require('crypto'),
     User = require('../models/user.js'),
     Post = require('../models/post.js'),
     Cate = require('../models/cate.js'),
+    formidable = require('formidable'),
+    path = require('path'),
     Comment = require('../models/comment.js');
 
 module.exports = function(app) {
@@ -194,12 +196,10 @@ module.exports = function(app) {
             error: req.flash('error').toString()
         });
     });
-
     app.post('/post', checkLogin);
     app.post('/post', function (req, res) {
         var currentUser = req.session.user,
-        tags = [req.body.tag1, req.body.tag2, req.body.tag3],
-        post = new Post(currentUser.name, currentUser.head, req.body.title, tags, req.body.post);
+            post = new Post(currentUser.name,  req.body.title, req.body.cate, req.body.post);
         post.save(function (err) {
             if (err) {
                 req.flash('error', err); 
@@ -383,7 +383,7 @@ module.exports = function(app) {
     app.get('/edit/:name/:day/:title', checkLogin);
     app.get('/edit/:name/:day/:title', function (req, res) {
         var currentUser = req.session.user;
-        Post.edit(currentUser.name, req.params.day, req.params.title, function (err, post) {
+        Post.edit(req.params.name, req.params.day, req.params.title, function (err, post) {
             if (err) {
                 req.flash('error', err); 
                 return res.redirect('back');
@@ -412,16 +412,76 @@ module.exports = function(app) {
         });
     });
 
+    //uploadImage
+    app.post('/images/upload/', function (req, res) {
+
+            var form = new formidable.IncomingForm();
+            form.parse(req, function (err, fields, files) {
+                if (err) {
+                    return console.log('formidable, form.parse err');
+                }
+                console.log('formidable, form.parse ok');
+                console.log(fields);
+
+                var item;
+
+                var length = 0;
+                for (item in files) {
+                    length++;
+                }
+                if (length === 0) {
+                    console.log('files no data');
+                    return;
+                }
+
+                for (item in files) {
+                    var file = files[item];
+                    // formidable 会将上传的文件存储为一个临时文件，现在获取这个文件的目录
+                    var tempfilepath = file.path;
+                    // 获取文件类型
+                    var type = file.type;
+
+                    // 获取文件名，并根据文件名获取扩展名
+                    var filename = file.name;
+                    var extname = filename.lastIndexOf('.') >= 0
+                                    ? filename.slice(filename.lastIndexOf('.') - filename.length)
+                                    : '';
+                    filename = Math.random().toString().slice(2) + extname;
+
+                    var filenewpath = path.join('/images/upload', filename);
+
+                    // 将临时文件保存为正式的文件
+                    fs.rename(tempfilepath, filenewpath, function (err) {
+                        var result = '';
+
+                        if (err) {
+                            console.log('fs.rename err');
+                            result = 'error|save error';
+                        } else {
+                            console.log('fs.rename done');
+                            result = 'http://' + server + ':' + port + '/images/upload/' + filename;
+                        }
+                        
+                        res.writeHead(200, {
+                            'Content-type': 'text/html'
+                        });
+                        res.end(result);
+                    }); 
+                } // for in 
+            });
+        
+    });
+
+
     app.get('/remove/:name/:day/:title', checkLogin);
     app.get('/remove/:name/:day/:title', function (req, res) {
-        var currentUser = req.session.user;
-        Post.remove(currentUser.name, req.params.day, req.params.title, function (err) {
+        Post.remove(req.params.name, req.params.day, req.params.title, function (err) {
             if (err) {
                 req.flash('error', err); 
                 return res.redirect('back');
             }
             req.flash('success', '删除成功!');
-            res.redirect('/');
+            res.redirect('/post_manage');
         });
     });
 

@@ -1,17 +1,17 @@
 <%- include header %>
 
-<div class="cate_hd">文档列表</div>
-<div class="cate_bd">
+<div class="admin_hd">文档列表</div>
+<div class="admin_bd">
 <ul class="admin_post_list">
-<% posts.forEach(function (post, index) { %>
-<li class="">
-    <a class="tit" href="/u/<%= post.name %>/<%= post.time.day %>/<%= post.title %>"><%= post.title %></a>
-    <span class="author"><%= post.name %></span> 
-    <span class="time"><%= post.time.minute %></span> 
-    <a class="btn btn-default" href="/edit/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">编辑</a>
-    <a class="btn btn-danger" href="/remove/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">删除</a>
-</li>
-<% }) %>
+    <% posts.forEach(function (post, index) { %>
+    <li class="">
+        <a class="tit" href="/u/<%= post.name %>/<%= post.time.day %>/<%= post.title %>"><%= post.title %></a>
+        <span class="author"><%= post.name %></span> 
+        <span class="time"><%= post.time.minute %></span> 
+        <a class="btn btn-default" href="/edit/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">编辑</a>
+        <a class="btn btn-danger" href="/remove/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">删除</a>
+    </li>
+    <% }) %>
 </li>
 </div>
 

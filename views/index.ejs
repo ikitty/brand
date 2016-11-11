@@ -7,16 +7,11 @@
     </div>
     <div class="info">
         作者：<a href="/u/<%= post.name %>"><%= post.name %></a> | 日期：<%= post.time.minute %> | 
-        标签：
-        <% post.tags.forEach(function (tag, index) { %>
-            <% if (tag) { %>
-                <a class="tag" href="/tags/<%= tag %>"><%= tag %></a>
-            <% } %>
-        <% }) %>
+        品牌：<a class="tag" href="/tags/<%= post.cate %>"><%= post.cate %></a>
     </div>
     <div class="post_cont"><%- post.post %></div>
 
-    <div class="info">阅读：<%= post.pv %> | 评论：<%= post.comments.length %> </div>
+    <div class="info">阅读：<%= post.pv %> </div>
 </div>
 <% }) %>
 

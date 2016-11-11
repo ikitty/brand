@@ -39,11 +39,15 @@ article{font-size:16px;min-height:700px;padding:20px 20px 20px 20px;background-c
 .l_head{float:left;margin-left:-4em;box-shadow:0px 1px 4px #888;}
 .r_head{float:right;margin-top:-2.5em;box-shadow:0px 1px 4px #888;}
 
-.form_key {float:left;width:100px;height:34px;line-height:34px;text-align:center;}
-.form_val {float:left;width:800px;}
+.form_key {float:left;width: 100px;height:34px;line-height:34px;text-align:center;}
+.form_val {float:left;width: 900px;}
 
 /* =====cate page===== */
 .cate_add {padding-top:20px;padding-bottom: 10px;}
+
+.admin_hd {height:20px;line-height:20px;margin-top: 10px;text-indent:16px;border-left:4px solid #555;}
+.admin_bd {padding-left:20px;padding-top:20px;color: #666;}
+
 .cate_hd {height:20px;line-height:20px;margin-top: 10px;text-indent:16px;border-left:4px solid #555;}
 
 .cate_bd {padding-left:20px;padding-top:20px;color: #666;}
@@ -57,7 +61,16 @@ article{font-size:16px;min-height:700px;padding:20px 20px 20px 20px;background-c
 
 /* admin */
 .admin_post_list {}
-.admin_post_list li {float:none;width:100%;padding:5px 0px;border-bottom:1px solid #ddd;}
+.admin_post_list li {width:100%;height:40px;line-height:40px;padding:5px 0px;border-bottom: 1px solid #e5e5e5;zoom:1;overflow:hidden;}
+.admin_post_list li .tit {float:left;width: 550px;height:100%;}
+.admin_post_list li .author {float:left;width: 150px;}
+.admin_post_list li .time {float:left;width: 150px;}
+.admin_post_list li .btn {float:left;margin-left: 10px;}
+
+/* =====article page===== */
+.post_title {height:40px;line-height:40px;border-bottom: 1px solid #eee;font-weight: 700;}
+.post_info {line-height:20px;padding:20px 0px;font-size: 14px;font-family: simsun;color: #999;}
+.post_content {line-height:22px;padding:10px 0px;color:#333;}
 
 /* =====footer===== */
 .footer {height:100px;line-height:100px;background-color:#222;color:#ccc;font-family: verdana;text-align:center;}

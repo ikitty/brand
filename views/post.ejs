@@ -9,7 +9,7 @@
     <div class="form-group">
         <label class="form_key">品牌</label>
         <div class="form_val">
-            <select class="form-control">
+            <select class="form-control" name="cate">
                 <option>aaa</option>
                 <option>bbb</option>
             </select>
@@ -18,7 +18,7 @@
     <div class="form-group">
         <label class="form_key">内容</label>
         <div class="form_val">
-            <textarea class="form-control" name="post" rows="20" cols="100"></textarea>
+            <textarea class="form-control" id="postContent" name="post" rows="20" cols="100"></textarea>
         </div>
     </div>
     <div class="form-group">
@@ -28,5 +28,17 @@
         </div>
     </div>
 </form>
+
+<script type="text/javascript">
+    $(function(){
+        var editor = new wangEditor('postContent');
+        var disMenus = ['strikethrough', 'bgcolor', 'emotion', 'video', 'location', 'redo', 'fullscreen']
+        editor.config.menus = editor.config.menus.filter((k) => disMenus.indexOf(k) === -1 )
+        editor.config.uploadImgUrl = '/images/upload';
+        
+        editor.create();
+    })
+</script>
+
 
 <%- include footer %>
