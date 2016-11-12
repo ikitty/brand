@@ -12,11 +12,25 @@
 <body>
 
 <header>
-    <div class="admin_logo">Admin</div>
+    <select id="changeCate">
+        <% cate.forEach(function (item) { %>
+        <option value=<%= item %> <% if(item===post.cate){ %>selected<% } %> ><%= item %></option>
+        <% }) %>
+    </select>
+    <script type="text/javascript">
+        $(function () {
+            $('#changeCate').on('change', function () {
+                console.log($(this).val()) ;
+                window.location.href = '/show/' + $(this).val() ;
+            })
+        })
+        
+    </script>
     <div class="welcome">
         <% if (user) { %>
         <span class="">欢迎您 <%= locals.user.name %>, </span>
-        <a href="/logout">退出</a>
+        <a href="/logout">退出</a>&nbsp;&nbsp;|&nbsp;
+        <a href="/post_manage">后台管理</a>
         <% } else { %>
         <a title="登录" href="/login">登录</a>
         <a title="注册" href="/reg">注册</a>
@@ -25,21 +39,3 @@
 </header>
 
 <section>
-    <nav>
-        <a title="主页" href="/">站点首页</a>
-        <% if (user) { %>
-        <a href="/post">添加文档</a>
-        <a href="/post_manage">文档管理</a>
-        <a href="/cate">品牌管理</a>
-        <% } %>
-    </nav>
-
-    <article>
-    <div class="core_cont">
-
-    <% if (success) { %>
-        <div><%= success %></div>
-    <% } %>
-    <% if (error) { %>
-        <div><%= error %> </div>
-    <% } %>

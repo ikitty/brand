@@ -1,10 +1,11 @@
 var mongodb = require('./db'),
     markdown = require('markdown').markdown;
 
-function Post(name,  title, cate, post) {
+function Post(name,  title, cate, post, customCate) {
     this.name = name;
     this.title = title;
     this.cate = cate;
+    this.customCate = customCate;
     this.post = post;
 }
 
@@ -21,6 +22,7 @@ Post.prototype.save = function(callback) {
     var post = {
         name: this.name,
         cate: this.cate,
+        customCate: this.customCate,
         title:this.title,
         post: this.post,
         time: time,
@@ -73,15 +75,36 @@ Post.getPostList = function( page , callback) {
         });
     });
 };
+//get All by cate
+Post.getAllByCate = function(cate, callback) {
+    mongodb.open(function (err, db) {
+        if (err) { return callback(err); }
+        db.collection('posts', function (err, collection) {
+            if (err) {
+                mongodb.close();
+                return callback(err);
+            }
+            var query = {};
+            if (cate) { query.cate = cate; }
+            collection.find(query).sort({
+                time: -1
+            }).toArray(function (err, docs) {
+                mongodb.close();
+                if (err) {
+                    return callback(err);
+                }
+                callback(null, docs);
+            });
+        });
+    });
+};
 
 //一次获取十篇文章
 Post.getTen = function(name, page, callback) {
-    //打开数据库
     mongodb.open(function (err, db) {
         if (err) {
             return callback(err);
         }
-        //读取 posts 集合
         db.collection('posts', function (err, collection) {
             if (err) {
                 mongodb.close();
@@ -111,45 +134,6 @@ Post.getTen = function(name, page, callback) {
     });
 };
 
-//获取一篇文章
-Post.getOne = function(name, day, title, callback) {
-    mongodb.open(function (err, db) {
-        if (err) {
-            return callback(err);
-        }
-        db.collection('posts', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            collection.findOne({
-                "name": name,
-                "time.day": day,
-                "title": title
-            }, function (err, doc) {
-                if (err) {
-                    mongodb.close();
-                    return callback(err);
-                }
-                if (doc) {
-                    collection.update({
-                        "name": name,
-                        "time.day": day,
-                        "title": title
-                    }, {
-                        $inc: {"pv": 1}
-                    }, function (err) {
-                        mongodb.close();
-                        if (err) {
-                            return callback(err);
-                        }
-                    });
-                    callback(null, doc);
-                }
-            });
-        });
-    });
-};
 
 Post.edit = function(name, day, title, callback) {
     mongodb.open(function (err, db) {
@@ -175,26 +159,21 @@ Post.edit = function(name, day, title, callback) {
     });
 };
 
-//更新一篇文章及其相关信息
-Post.update = function(name, day, title, post, callback) {
-    //打开数据库
+//更新一篇文章
+Post.update = function(name, day, title, newTitle, post,cate, customCate,  callback) {
     mongodb.open(function (err, db) {
-        if (err) {
-            return callback(err);
-        }
-        //读取 posts 集合
+        if (err) { return callback(err); }
         db.collection('posts', function (err, collection) {
             if (err) {
                 mongodb.close();
                 return callback(err);
             }
-            //更新文章内容
             collection.update({
                 "name": name,
                 "time.day": day,
                 "title": title
             }, {
-                $set: {post: post}
+                $set: {post: post, title: newTitle, cate: cate, customCate: customCate}
             }, function (err) {
                 mongodb.close();
                 if (err) {
@@ -248,64 +227,13 @@ Post.remove = function(name, day, title, callback) {
     });
 };
 
-//返回所有文章存档信息
-Post.getArchive = function(callback) {
-    //打开数据库
-    mongodb.open(function (err, db) {
-        if (err) {
-            return callback(err);
-        }
-        //读取 posts 集合
-        db.collection('posts', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            //返回只包含 name、time、title 属性的文档组成的存档数组
-            collection.find({}, {
-                "name": 1,
-                "time": 1,
-                "title": 1
-            }).sort({
-                time: -1
-            }).toArray(function (err, docs) {
-                mongodb.close();
-                if (err) {
-                    return callback(err);
-                }
-                callback(null, docs);
-            });
-        });
-    });
-};
 
-//返回所有标签
-Post.getTags = function(callback) {
-    //打开数据库
-    mongodb.open(function (err, db) {
-        if (err) {
-            return callback(err);
-        }
-        //读取 posts 集合
-        db.collection('posts', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            //distinct 用来找出给定键的所有不同值
-            collection.distinct("tags", function (err, docs) {
-                mongodb.close();
-                if (err) {
-                    return callback(err);
-                }
-                callback(null, docs);
-            });
-        });
-    });
-};
 
-//返回含有特定标签的所有文章
-Post.getTag = function(tag, callback) {
+
+
+//============
+//todo getUpdate pv
+Post.getOne = function(name, day, title, callback) {
     mongodb.open(function (err, db) {
         if (err) {
             return callback(err);
@@ -315,55 +243,31 @@ Post.getTag = function(tag, callback) {
                 mongodb.close();
                 return callback(err);
             }
-            //查询所有 tags 数组内包含 tag 的文档
-            //并返回只含有 name、time、title 组成的数组
-            collection.find({
-                "tags": tag
-            }, {
-                "name": 1,
-                "time": 1,
-                "title": 1
-            }).sort({
-                time: -1
-            }).toArray(function (err, docs) {
-                mongodb.close();
+            collection.findOne({
+                "name": name,
+                "time.day": day,
+                "title": title
+            }, function (err, doc) {
                 if (err) {
+                    mongodb.close();
                     return callback(err);
                 }
-                callback(null, docs);
+                if (doc) {
+                    collection.update({
+                        "name": name,
+                        "time.day": day,
+                        "title": title
+                    }, {
+                        $inc: {"pv": 1}
+                    }, function (err) {
+                        mongodb.close();
+                        if (err) {
+                            return callback(err);
+                        }
+                    });
+                    callback(null, doc);
+                }
             });
         });
     });
 };
-
-//返回通过标题关键字查询的所有文章信息
-Post.search = function(keyword, callback) {
-    mongodb.open(function (err, db) {
-        if (err) {
-            return callback(err);
-        }
-        db.collection('posts', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            var pattern = new RegExp(keyword, "i");
-            collection.find({
-                "title": pattern
-            }, {
-                "name": 1,
-                "time": 1,
-                "title": 1
-            }).sort({
-                time: -1
-            }).toArray(function (err, docs) {
-                mongodb.close();
-                if (err) {
-                    return callback(err);
-                }
-                callback(null, docs);
-            });
-        });
-    });
-};
-

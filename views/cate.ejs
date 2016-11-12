@@ -1,33 +1,28 @@
 <%- include header %>
 
-<div class="cate_hd">添加品牌</div>
-<form method="post" class="cate_add form-horizontal">
+<div class="admin_hd">添加品牌</div>
+<form method="post" class="cate_add_form form-horizontal">
     <div class="form-group">
         <label for="iptTit" class="form_key ">名称</label>
         <div class="form_val">
             <input type="text" name="name" class="form-control" id="iptTit">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="form_key ">&nbsp;</label>
-        <div class="form_val">
-            <input type="submit" class="btn btn-success" value="添加">
+            <button type="submit" class="btn btn-success">添加</button>
         </div>
     </div>
 </form>
 
-<div class="cate_hd">品牌列表</div>
-<div class="cate_bd">
+<div class="admin_hd">品牌列表</div>
+<div class="admin_bd cate_bd">
     <ul>
     <% posts.forEach(function (post, index) { %>
         <li>
             <%= post.name %> 
             <a class="btn btn-default btn_edit" href="javascript:;">编辑</a>
-            <a class="btn btn-danger" href="/remove_cate/<%= post.name %>">删除</a>
+            <a class="btn btn-danger" href="/remove_cate/<%= post._id %>">删除</a>
             <div class="edit_area " style="display:none">
                 <input type="text" name="name" value="<%= post.name %>">
-                <span class="btn btn-default btn_update"  data-href="/edit_cate/<%= post.name %>">提交</span>
-                <a class="btn btn-danger btn_cancel" href="javascript:;">取消</a>
+                <span class="btn btn-default btn_update"  data-href="/edit_cate/<%= post._id %>">提交</span>
+                <a class="btn btn-warning btn_cancel" href="javascript:;">取消</a>
             </div>
         </li>
     <% }) %>

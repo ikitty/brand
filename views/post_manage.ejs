@@ -6,6 +6,8 @@
     <% posts.forEach(function (post, index) { %>
     <li class="">
         <a class="tit" href="/u/<%= post.name %>/<%= post.time.day %>/<%= post.title %>"><%= post.title %></a>
+        <span class="cate"><%= post.cate %></span> 
+        <span class="custom_cate"><%= post.customCate %></span> 
         <span class="author"><%= post.name %></span> 
         <span class="time"><%= post.time.minute %></span> 
         <a class="btn btn-default" href="/edit/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">编辑</a>

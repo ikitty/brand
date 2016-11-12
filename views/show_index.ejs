@@ -1,0 +1,27 @@
+<%- include show_header %>
+
+<nav class="show_menu">
+    <dl>
+        <% for(var item in menus) { %>
+        <dt><%= item %></dt>
+            <% var d = menus[item] %>
+            <% for(var key in d) { %>
+            <dd><a href="/show/<%= d[key].cate%>/<%=d[key]._id%>" <% if(d[key]._id==post._id){ %>class="active"<% } %>><%= d[key].title %></a></dd>
+            <% } %>
+        <% } %>
+    </dl>
+</nav>
+
+<article>
+
+<div class="core_cont">
+    
+
+    <div class="post_tit"><%= title %></div>
+    <div class="info">
+        作者：<%= post.name %> | 日期：<%= post.time.minute %>
+    </div>
+    <div class="post_cont"><%- post.post %></div>
+    <div class="info">阅读：<%= post.pv %> </div>
+
+<%- include footer %>
