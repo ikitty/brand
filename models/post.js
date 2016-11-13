@@ -1,5 +1,4 @@
-var mongodb = require('./db'),
-    markdown = require('markdown').markdown;
+var mongodb = require('./db');
 
 function Post(name,  title, cate, post, customCate) {
     this.name = name;

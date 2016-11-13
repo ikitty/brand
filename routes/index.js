@@ -23,6 +23,7 @@ module.exports = function(app) {
             var id = req.params.id || posts[0]._id
 
             if (err) { posts = []; } 
+            //{customCate:[{},{}]}
             var ret = {} ;
             posts.forEach(k=>{
                 k.customCate && (ret[k.customCate] && ret[k.customCate].push(k) || (ret[k.customCate]=[k]) );
@@ -33,10 +34,13 @@ module.exports = function(app) {
             //get cate
             var D = new Cate();
             D.getAll(function (err, docs ) {
-                docs = (docs||[]).map(k=>k.name);
+                docs = docs || []
+                var showCate = docs.filter( k => k.name == showPost.cate)
+                var logoImg = showCate.length && showCate[0].img || ''
                 res.render('show_index', {
                     title: showPost.title,
                     cate: docs,
+                    logoImg: logoImg,
                     menus: ret,
                     post: showPost,
                     success: req.flash('success').toString(),
@@ -153,6 +157,113 @@ module.exports = function(app) {
         });
     });
 
+    //=======common img upload
+    var doImgUpload = function (req, callback) {
+        var form = new formidable.IncomingForm();
+        form.parse(req, function (err, fields, files) {
+            if (err) { return console.log('formidable, form.parse err', err); }
+            for (var item in files) {
+                var file = files[item];
+                if (!file.name) {
+                    callback(fields, '')
+                    return  ;
+                }
+                var tempfilepath = file.path;
+                var type = file.type;
+                var filename = file.name;
+                var extname = filename.lastIndexOf('.') >= 0
+                                ? filename.slice(filename.lastIndexOf('.') - filename.length)
+                                : '';
+                var d = new Date();
+                var dArr = ['brand-', d.getMonth()+1, d.getDate(),d.getHours(),d.getMinutes()];
+                filename = dArr.join('')+ '-'+ (Math.random()*100 |0)  + extname;
+
+                var filenewpath = path.join(process.cwd(), 'public/images/brand/' + filename) ;
+                fs.rename(tempfilepath, filenewpath, function (err) {
+                    var result = '';
+                    if (err) {
+                        result = 'error|save error';
+                    } else {
+                        result = '/images/brand/' + filename;
+                    }
+                    callback(fields, result );
+                }); 
+            } 
+        });
+    }
+    app.post('/cate', checkLogin);
+    app.post('/cate', function (req, res) {
+        doImgUpload(req, function (args, img) {
+            var D = new Cate(args.name, img) ;
+            D.save(function (err) {
+                if (err) {
+                    req.flash('error', err); 
+                    return res.redirect('/');
+                }
+                req.flash('success', '操作成功!');
+                res.redirect('/cate');
+            });
+        })
+        var form = new formidable.IncomingForm();
+        form.parse(req, function (err, fields, files) {
+            if (err) { return console.log('formidable, form.parse err', err); }
+            var cateName = fields['name'] || "EmptyCateName"
+            for (var item in files) {
+                var file = files[item];
+                var tempfilepath = file.path;
+                var type = file.type;
+                var filename = file.name;
+                var extname = filename.lastIndexOf('.') >= 0
+                                ? filename.slice(filename.lastIndexOf('.') - filename.length)
+                                : '';
+                var d = new Date();
+                var dArr = ['brand-', d.getMonth()+1, d.getDate(),d.getHours(),d.getMinutes()];
+                filename = dArr.join('')+ '-'+ (Math.random()*100 |0)  + extname;
+
+                var filenewpath = path.join(process.cwd(), 'public/images/brand/' + filename) ;
+                fs.rename(tempfilepath, filenewpath, function (err) {
+                    var result = '';
+                    if (err) {
+                        result = 'error|save error';
+                    } else {
+                        result = '/images/brand/' + filename;
+                    }
+
+                }); 
+            } 
+        });
+    });
+    //handle edit cate
+    app.get('/edit_cate/:id', checkLogin);
+    app.get('/edit_cate/:id', function (req, res) {
+        var D = new Cate();
+        D.getOne(req.params.id ,function (err, doc ) {
+            if (err) { posts = []; } 
+            res.render('edit_cate', {
+                title: '修改品牌',
+                path: 'cate',
+                post: doc,
+                success: req.flash('success').toString(),
+                error: req.flash('error').toString()
+            });
+        });
+    });
+    app.post('/edit_cate/:id', checkLogin);
+    app.post('/edit_cate/:id', function (req, res) {
+        doImgUpload(req, function (args, img) {
+            var D = new Cate();
+            D.update(req.params.id, args.name , img,  function (err) {
+                if (err) {
+                    req.flash('error', err); 
+                    return res.redirect('back');
+                }
+                req.flash('success', '操作成功!');
+                res.redirect('/cate');
+            });
+        })
+    });
+
+
     app.get('/remove_cate/:id', checkLogin);
     app.get('/remove_cate/:id', function (req, res) {
         var D = new Cate();
@@ -160,34 +271,6 @@ module.exports = function(app) {
             if (err) {
                 req.flash('error', err); 
                 return res.redirect('back');
-            }
-            req.flash('success', '操作成功!');
-            res.redirect('/cate');
-        });
-    });
-    app.get('/edit_cate/:id/:name', checkLogin);
-    app.get('/edit_cate/:id/:name', function (req, res) {
-        var D = new Cate();
-        D.update(req.params.id, req.params.name, function (err) {
-            if (err) {
-                req.flash('error', err); 
-                return res.redirect('back');
-            }
-            req.flash('success', '操作成功!');
-            res.redirect('/cate');
-        });
-    });
-
-    app.post('/cate', checkLogin);
-    app.post('/cate', function (req, res) {
-        var currentUser = req.session.user,
-            name = req.body.name ,
-            D = new Cate(name) ;
-
-        D.save(function (err) {
-            if (err) {
-                req.flash('error', err); 
-                return res.redirect('/');
             }
             req.flash('success', '操作成功!');
             res.redirect('/cate');

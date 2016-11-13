@@ -1,11 +1,22 @@
 <%- include header %>
 
 <div class="admin_hd">添加品牌</div>
-<form method="post" class="cate_add_form form-horizontal">
+<form method="post" class="cate_add_form form-horizontal" enctype="multipart/form-data">
     <div class="form-group">
         <label for="iptTit" class="form_key ">名称</label>
         <div class="form_val">
             <input type="text" name="name" class="form-control" id="iptTit">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form_key ">图片</label>
+        <div class="form_val">
+            <input type="file" name="img" >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form_key ">&nbsp;</label>
+        <div class="form_val">
             <button type="submit" class="btn btn-success">添加</button>
         </div>
     </div>
@@ -16,33 +27,14 @@
     <ul>
     <% posts.forEach(function (post, index) { %>
         <li>
-            <%= post.name %> 
-            <a class="btn btn-default btn_edit" href="javascript:;">编辑</a>
+            <div class="edit_cate_name"><%= post.name %> </div>
+            <div class="edit_cate_img"><img src="<%= post.img %>"> </div>
             <a class="btn btn-danger" href="/remove_cate/<%= post._id %>">删除</a>
-            <div class="edit_area " style="display:none">
-                <input type="text" name="name" value="<%= post.name %>">
-                <span class="btn btn-default btn_update"  data-href="/edit_cate/<%= post._id %>">提交</span>
-                <a class="btn btn-warning btn_cancel" href="javascript:;">取消</a>
-            </div>
+            <a class="btn btn-default btn_edit" href="/edit_cate/<%= post._id%>">编辑</a>
         </li>
     <% }) %>
     </ul>
 </div>
 
-<script>
-(()=>{
-    $('.btn_edit').click(function(e) {
-        $(this).parent().children('.edit_area').show().find('input').focus();;
-    })
-    $('.btn_update').click(function(e) {
-        var url = $(this).data('href')
-        url += '/' + encodeURI($(this).prev().val())
-        window.location.href = url ;
-    })
-    $('.btn_cancel').click(function(e) {
-        $(this).parent().hide();
-    })
-})();
-</script>
 
 <%- include footer %>

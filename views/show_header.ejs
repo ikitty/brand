@@ -12,10 +12,10 @@
 <body>
 
 <header class="show_header">
-    <div class="show_logo"> <%=post.cate%> </div>
+    <div class="show_logo"><img src="<%=logoImg%>"> </div>
     <select id="changeCate">
         <% cate.forEach(function (item) { %>
-        <option value=<%= item %> <% if(item===post.cate){ %>selected<% } %> ><%= item %></option>
+        <option value=<%= item.name %> <% if(item.name===post.cate){ %>selected<% } %> ><%= item.name%></option>
         <% }) %>
     </select>
     <div class="show_welcome">

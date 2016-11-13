@@ -1,0 +1,25 @@
+<%- include header %>
+
+<div class="admin_hd">修改品牌</div>
+<form method="post" class="cate_add_form form-horizontal" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="iptTit" class="form_key ">名称</label>
+        <div class="form_val">
+            <input type="text" name="name" value="<%=post.name%>" class="form-control" id="iptTit">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form_key ">图片</label>
+        <div class="form_val">
+            <input type="file" name="img" >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form_key ">&nbsp;</label>
+        <div class="form_val">
+            <button type="submit" class="btn btn-success">提交</button>
+        </div>
+    </div>
+</form>
+
+<%- include footer %>
