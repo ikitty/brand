@@ -10,6 +10,10 @@ var crypto = require('crypto'),
 var settings = require('../settings');
 
 module.exports = function(app) {
+    app.get('/', function (req, res) {
+        return res.redirect('/show/');
+    });
+
     //show FE page
     app.get('/show/:cate?/:id?', function (req, res) {
         Post.getAllByCate(req.params.cate || '', function (err, posts, total) {
@@ -42,10 +46,6 @@ module.exports = function(app) {
         });
     });
 
-    app.get('/', function (req, res) {
-        return res.redirect('/show/');
-    });
-
     //postMange
     app.get('/post_manage', function (req, res) {
         Post.getPostList( 1, function (err, posts, total) {
@@ -54,6 +54,7 @@ module.exports = function(app) {
             } 
             res.render('post_manage', {
                 title: '文章列表',
+                path: 'post_manage',
                 posts: posts,
                 success: req.flash('success').toString(),
                 error: req.flash('error').toString()
@@ -76,12 +77,10 @@ module.exports = function(app) {
         var name = req.body.name,
         password = req.body.password,
         password_re = req.body['password-repeat'];
-        //检验用户两次输入的密码是否一致
         if (password_re != password) {
             req.flash('error', '两次输入的密码不一致!'); 
             return res.redirect('/reg');//返回主册页
         }
-        //生成密码的 md5 值
         var md5 = crypto.createHash('md5'),
             password = md5.update(req.body.password).digest('hex');
         var newUser = new User({
@@ -89,7 +88,6 @@ module.exports = function(app) {
             password: password,
             email: req.body.email
         });
-        //检查用户名是否已经存在 
         User.get(newUser.name, function (err, user) {
             if (user) {
                 req.flash('error', '用户已存在!');
@@ -123,20 +121,18 @@ module.exports = function(app) {
         //生成密码的 md5 值
         var md5 = crypto.createHash('md5'),
         password = md5.update(req.body.password).digest('hex');
-        //检查用户是否存在
         User.get(req.body.name, function (err, user) {
             if (!user) {
                 req.flash('error', '用户不存在!'); 
-                return res.redirect('/login');//用户不存在则跳转到登录页
+                return res.redirect('/login');
             }
             if (user.password != password) {
                 req.flash('error', '密码错误!'); 
                 return res.redirect('/login');
             }
-            //用户名密码都匹配后，将用户信息存入 session
             req.session.user = user;
             req.flash('success', '登陆成功!');
-            res.redirect('/');//登陆成功后跳转到主页
+            res.redirect('/post_manage/');
         });
     });
 
@@ -148,6 +144,7 @@ module.exports = function(app) {
             if (err) { posts = []; } 
             res.render('cate', {
                 title: '品牌管理',
+                path: 'cate',
                 posts: posts,
                 user: req.session.user,
                 success: req.flash('success').toString(),
@@ -209,6 +206,7 @@ module.exports = function(app) {
             }
             res.render('post', {
                 title: '新增文档',
+                path: 'post',
                 cate: docs,
                 customCate: settings.customCate || [],
                 user: req.session.user,

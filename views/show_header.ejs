@@ -11,31 +11,30 @@
 </head>
 <body>
 
-<header>
+<header class="show_header">
+    <div class="show_logo"> <%=post.cate%> </div>
     <select id="changeCate">
         <% cate.forEach(function (item) { %>
         <option value=<%= item %> <% if(item===post.cate){ %>selected<% } %> ><%= item %></option>
         <% }) %>
     </select>
-    <script type="text/javascript">
-        $(function () {
-            $('#changeCate').on('change', function () {
-                console.log($(this).val()) ;
-                window.location.href = '/show/' + $(this).val() ;
-            })
-        })
-        
-    </script>
-    <div class="welcome">
+    <div class="show_welcome">
         <% if (user) { %>
-        <span class="">欢迎您 <%= locals.user.name %>, </span>
+        <span class=""><%= locals.user.name %>， </span>
         <a href="/logout">退出</a>&nbsp;&nbsp;|&nbsp;
         <a href="/post_manage">后台管理</a>
         <% } else { %>
-        <a title="登录" href="/login">登录</a>
+        <a title="登录" href="/login">登录</a>&nbsp;&nbsp;|&nbsp;
         <a title="注册" href="/reg">注册</a>
         <% } %>
     </div>
 </header>
-
+<script type="text/javascript">
+    $(function () {
+        $('#changeCate').on('change', function () {
+            console.log($(this).val()) ;
+            window.location.href = '/show/' + $(this).val() ;
+        })
+    })
+</script>
 <section>

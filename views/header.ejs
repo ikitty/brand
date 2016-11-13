@@ -11,35 +11,38 @@
 </head>
 <body>
 
-<header>
+<header class="admin_header">
     <div class="admin_logo">Admin</div>
-    <div class="welcome">
+
+    <% if (success || error) { %>
+    <div class="admin_msg" id="adminMsg"> <%= success || error %> </div>
+    <% } %>
+    <div class="admin_welcome">
         <% if (user) { %>
-        <span class="">欢迎您 <%= locals.user.name %>, </span>
+        <span class=""><%= locals.user.name %>， </span>
         <a href="/logout">退出</a>
         <% } else { %>
-        <a title="登录" href="/login">登录</a>
-        <a title="注册" href="/reg">注册</a>
+        <a title="登录" href="/login">登录</a>&nbsp;&nbsp;<a title="注册" href="/reg">注册</a>
         <% } %>
     </div>
 </header>
 
+<script type="text/javascript">
+(function () {
+    setTimeout(function () { $('#adminMsg').fadeOut(1000) }, 500);
+})();
+</script>
+
 <section>
-    <nav>
-        <a title="主页" href="/">站点首页</a>
+    <nav class="admin_nav">
+        <a class="def" target="_blank" href="/">站点首页</a>
         <% if (user) { %>
-        <a href="/post">添加文档</a>
-        <a href="/post_manage">文档管理</a>
-        <a href="/cate">品牌管理</a>
+        <a href="/post" <%if(locals.path==='post'){%>class="active"<%}%>>添加文档</a>
+        <a href="/post_manage" <%if(locals.path==='post_manage'){%>class="active"<%}%>>文档管理</a>
+        <a href="/cate" <%if(locals.path==='cate'){%>class="active"<%}%>>品牌管理</a>
         <% } %>
     </nav>
 
     <article>
     <div class="core_cont">
 
-    <% if (success) { %>
-        <div><%= success %></div>
-    <% } %>
-    <% if (error) { %>
-        <div><%= error %> </div>
-    <% } %>

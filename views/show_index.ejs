@@ -1,6 +1,6 @@
 <%- include show_header %>
 
-<nav class="show_menu">
+<nav class="show_nav">
     <dl>
         <% for(var item in menus) { %>
         <dt><%= item %></dt>
@@ -12,16 +12,13 @@
     </dl>
 </nav>
 
-<article>
+<article class="show_core">
 
 <div class="core_cont">
-    
-
-    <div class="post_tit"><%= title %></div>
-    <div class="info">
-        作者：<%= post.name %> | 日期：<%= post.time.minute %>
+    <div class="show_post_title"><%= title %></div>
+    <div class="show_post_info">
+        作者：<%= post.name %> &nbsp;|&nbsp; 日期：<%= post.time.minute %> &nbsp;|&nbsp; 阅读：<%= post.pv %>
     </div>
-    <div class="post_cont"><%- post.post %></div>
-    <div class="info">阅读：<%= post.pv %> </div>
+    <div class="show_post_cont"><%- post.post %></div>
 
 <%- include footer %>

@@ -46,3 +46,24 @@ User.prototype.save = function(callback) {
   });
 };
 
+User.get = function(name, callback) {		
+    mongodb.open(function (err, db) {		
+        if (err) {		return callback(err); }		
+        db.collection('users', function (err, collection) {		
+            if (err) {		
+                mongodb.close();		
+                return callback(err);
+            }		
+            //查找用户名（name键）值为 name 一个文档		
+            collection.findOne({		
+                name: name		
+            }, function (err, user) {		
+                mongodb.close();		
+                if (err) {		
+                    return callback(err);
+                }		
+                callback(null, user);
+            });		
+        });		
+    });		
+};

@@ -5,7 +5,7 @@
 <ul class="admin_post_list">
     <% posts.forEach(function (post, index) { %>
     <li class="">
-        <a class="tit" href="/u/<%= post.name %>/<%= post.time.day %>/<%= post.title %>"><%= post.title %></a>
+        <a class="tit" href="/show/<%= post.cate %>/<%= post._id %>" target="_blank"><%= post.title %></a>
         <span class="cate"><%= post.cate %></span> 
         <span class="custom_cate"><%= post.customCate %></span> 
         <span class="author"><%= post.name %></span> 
