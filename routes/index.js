@@ -18,7 +18,10 @@ module.exports = function(app) {
     app.get('/show/:cate?/:id?', function (req, res) {
         Post.getAllByCate(req.params.cate || '', function (err, posts, total) {
             if (posts.length === 0) {
-                return res.redirect('back');
+                // no content
+                res.writeHead(200, { 'Content-type': 'text/html' });
+                res.end('No Content');
+                return ;
             }
             var id = req.params.id || posts[0]._id
 
