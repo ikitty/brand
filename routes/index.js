@@ -160,82 +160,59 @@ module.exports = function(app) {
         });
     });
 
+    //============================
     //=======common img upload
-    var doImgUpload = function (req, callback) {
+    //============================
+    var doImgUpload = function (req, uploadDir, callback) {
         var form = new formidable.IncomingForm();
+        form.uploadDir = './tmp'
         form.parse(req, function (err, fields, files) {
-            if (err) { return console.log('formidable, form.parse err', err); }
+            //fields是form提交的字段对象
+            if (err) { return console.log('Formidable, form.parse err ', err); }
             for (var item in files) {
                 var file = files[item];
                 if (!file.name) {
-                    callback(fields, '')
+                    callback(fields, 'plz choose a image file')
                     return  ;
                 }
-                var tempfilepath = file.path;
                 var type = file.type;
                 var filename = file.name;
-                var extname = filename.lastIndexOf('.') >= 0
-                                ? filename.slice(filename.lastIndexOf('.') - filename.length)
-                                : '';
+                var extname = filename.lastIndexOf('.') >= 0 ? filename.slice(filename.lastIndexOf('.') - filename.length) : '';
                 var d = new Date();
-                var dArr = ['brand-', d.getMonth()+1, d.getDate(),d.getHours(),d.getMinutes()];
-                filename = dArr.join('')+ '-'+ (Math.random()*100 |0)  + extname;
+                var dArr = [d.getFullYear(), d.getMonth()+1, d.getDate(),d.getHours(),d.getMinutes() ,'-', (Math.random()*100|0)];
+                filename = dArr.join('') + extname;
 
-                var filenewpath = path.join(process.cwd(), 'public/images/brand/' + filename) ;
-                fs.rename(tempfilepath, filenewpath, function (err) {
+                var filenewpath = path.join(process.cwd(), 'public/images/' + uploadDir + '/' + filename) ;
+                fs.rename(file.path, filenewpath, function (err) {
                     var result = '';
                     if (err) {
+                        statusCode = 502
                         result = 'error|save error';
                     } else {
-                        result = '/images/brand/' + filename;
+                        statusCode = 200
+                        result = '/images/' + uploadDir + '/' + filename;
                     }
-                    callback(fields, result );
+                    callback(fields, result, statusCode );
                 }); 
             } 
         });
     }
+
     app.post('/cate', checkLogin);
     app.post('/cate', function (req, res) {
-        doImgUpload(req, function (args, img) {
+        doImgUpload(req, 'brand',  function (args, img) {
             var D = new Cate(args.name, img) ;
             D.save(function (err) {
                 if (err) {
                     req.flash('error', err); 
-                    return res.redirect('/');
+                    return res.redirect('/cate');
                 }
                 req.flash('success', '操作成功!');
                 res.redirect('/cate');
             });
         })
-        var form = new formidable.IncomingForm();
-        form.parse(req, function (err, fields, files) {
-            if (err) { return console.log('formidable, form.parse err', err); }
-            var cateName = fields['name'] || "EmptyCateName"
-            for (var item in files) {
-                var file = files[item];
-                var tempfilepath = file.path;
-                var type = file.type;
-                var filename = file.name;
-                var extname = filename.lastIndexOf('.') >= 0
-                                ? filename.slice(filename.lastIndexOf('.') - filename.length)
-                                : '';
-                var d = new Date();
-                var dArr = ['brand-', d.getMonth()+1, d.getDate(),d.getHours(),d.getMinutes()];
-                filename = dArr.join('')+ '-'+ (Math.random()*100 |0)  + extname;
-
-                var filenewpath = path.join(process.cwd(), 'public/images/brand/' + filename) ;
-                fs.rename(tempfilepath, filenewpath, function (err) {
-                    var result = '';
-                    if (err) {
-                        result = 'error|save error';
-                    } else {
-                        result = '/images/brand/' + filename;
-                    }
-
-                }); 
-            } 
-        });
     });
+
     //handle edit cate
     app.get('/edit_cate/:id', checkLogin);
     app.get('/edit_cate/:id', function (req, res) {
@@ -378,34 +355,10 @@ module.exports = function(app) {
 
     //uploadImage for editor
     app.post('/images/upload/', function (req, res) {
-        var form = new formidable.IncomingForm();
-        form.parse(req, function (err, fields, files) {
-            if (err) { return console.log('formidable, form.parse err', err); }
-            for (var item in files) {
-                var file = files[item];
-                var tempfilepath = file.path;
-                var type = file.type;
-                var filename = file.name;
-                var extname = filename.lastIndexOf('.') >= 0
-                                ? filename.slice(filename.lastIndexOf('.') - filename.length)
-                                : '';
-                var d = new Date();
-                var dArr = [d.getFullYear(), d.getMonth()+1, d.getDate(),d.getHours(),d.getMinutes()];
-                filename = dArr.join('')+ '-'+ (Math.random()*10000 |0)  + extname;
-
-                var filenewpath = path.join(process.cwd(), 'public/images/upload/' + filename) ;
-                fs.rename(tempfilepath, filenewpath, function (err) {
-                    var result = '';
-                    if (err) {
-                        result = 'error|save error';
-                    } else {
-                        result = '/images/upload/' + filename;
-                    }
-                    res.writeHead(200, { 'Content-type': 'text/html' });
-                    res.end(result);
-                }); 
-            } 
-        });
+        doImgUpload(req, 'upload',  function (args, img, statusCode) {
+            res.writeHead(statusCode, { 'Content-type': 'text/html' });
+            res.end(img);
+        })
     });
 
     app.use(function (req, res) { res.render("404"); });
