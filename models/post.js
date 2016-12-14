@@ -1,4 +1,5 @@
 var mongodb = require('./db');
+var Oid = require('mongodb').ObjectID 
 
 function Post(name,  title, cate, post, customCate) {
     this.name = name;
@@ -46,6 +47,7 @@ Post.prototype.save = function(callback) {
 };
 
 //后台获取文章列表
+// todo : get posts by user or page
 Post.getPostList = function( page , callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
@@ -134,7 +136,7 @@ Post.getTen = function(name, page, callback) {
 };
 
 
-Post.edit = function(name, day, title, callback) {
+Post.edit = function(id, callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
         db.collection('posts', function (err, collection) {
@@ -144,14 +146,10 @@ Post.edit = function(name, day, title, callback) {
             }
 
             collection.findOne({
-                "name": name,
-                "time.day": day,
-                "title": title
+                "_id": Oid(id)
             }, function (err, doc) {
                 mongodb.close();
-                if (err) {
-                    return callback(err);
-                }
+                if (err) { return callback(err); }
                 callback(null, doc);
             });
         });
@@ -159,25 +157,23 @@ Post.edit = function(name, day, title, callback) {
 };
 
 //更新一篇文章
-Post.update = function(name, day, title, newTitle, post,cate, customCate,  callback) {
+Post.update = function(name, id, newTitle, post,cate, customCate,  callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
+
         db.collection('posts', function (err, collection) {
             if (err) {
                 mongodb.close();
                 return callback(err);
             }
-            collection.update({
-                "name": name,
-                "time.day": day,
-                "title": title
-            }, {
+            var query = {"_id": Oid(id), "name": name};
+            //todo 如果是管理员，则不需要name鉴定
+
+            collection.update(query, {
                 $set: {post: post, title: newTitle, cate: cate, customCate: customCate}
             }, function (err) {
                 mongodb.close();
-                if (err) {
-                    return callback(err);
-                }
+                if (err) { return callback(err); }
                 callback(null);
             });
         });
@@ -185,40 +181,22 @@ Post.update = function(name, day, title, newTitle, post,cate, customCate,  callb
 };
 
 //删除一篇文章
-Post.remove = function(name, day, title, callback) {
-    //打开数据库
+Post.remove = function(id,  callback) {
     mongodb.open(function (err, db) {
-        if (err) {
-            return callback(err);
-        }
-        //读取 posts 集合
+        if (err) { return callback(err); }
+        
         db.collection('posts', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            //查询要删除的文档
-            collection.findOne({
-                "name": name,
-                "time.day": day,
-                "title": title
-            }, function (err, doc) {
-                if (err) {
-                    mongodb.close();
-                    return callback(err);
-                }
+            if (err) { mongodb.close(); return callback(err); }
+            
+            var query = {"_id": Oid(id)}
+            collection.findOne(query, function (err, doc) {
+                if (err) { mongodb.close(); return callback(err); }
 
-                collection.remove({
-                    "name": name,
-                    "time.day": day,
-                    "title": title
-                }, {
+                collection.remove(query, {
                     w: 1
                 }, function (err) {
                     mongodb.close();
-                    if (err) {
-                        return callback(err);
-                    }
+                    if (err) { return callback(err); }
                     callback(null);
                 });
             });

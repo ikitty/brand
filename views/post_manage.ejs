@@ -10,11 +10,16 @@
         <span class="custom_cate"><%= post.customCate %></span> 
         <span class="author"><%= post.name %></span> 
         <span class="time"><%= post.time.minute %></span> 
-        <a class="btn btn-default" href="/edit/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">编辑</a>
-        <a class="btn btn-danger" href="/remove/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">删除</a>
+        <a class="btn btn-default" href="/edit/<%= post._id %>" >编辑</a>
+        <a class="btn btn-danger" href="/remove/<%= post._id %>">删除</a>
     </li>
     <% }) %>
 </li>
+<div class="pager">
+    Amount: <%= total%> 
 </div>
+
+</div>
+
 
 <%- include footer %>

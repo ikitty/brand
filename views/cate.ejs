@@ -29,12 +29,19 @@
         <li>
             <div class="edit_cate_name"><%= post.name %> </div>
             <div class="edit_cate_img"><img src="<%= post.img %>"> </div>
-            <a class="btn btn-danger" href="/remove_cate/<%= post._id %>">删除</a>
+            <a class="btn btn-danger jsBtnDel" href="javascript:;" data-href="/remove_cate/<%= post._id %>" >删除</a>
             <a class="btn btn-default btn_edit" href="/edit_cate/<%= post._id%>">编辑</a>
         </li>
     <% }) %>
     </ul>
 </div>
 
+<script>
+    $('.jsBtnDel').click(function(){
+        if(confirm('这将删除该品牌下所有文章，确认删除该品牌吗？')){
+            window.location.href = $(this).data('href')
+        }
+    })
+</script>
 
 <%- include footer %>
