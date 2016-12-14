@@ -87,3 +87,6 @@ article{font-size:16px;min-height:700px;padding:20px 20px 20px 20px;background-c
 .show_post_info {line-height:20px;padding:8px 0px;font-size: 14px;font-family: arial;border-top:1px solid #eee;border-bottom:1px solid #eee;color: #bbb;}
 .show_post_cont {line-height:25px;padding:10px 0;color:#333;}
 .show_post_cont p {margin:10px 0px;}
+
+.pager {margin-top:20px;}
+.pager a {margin-right:5px;}

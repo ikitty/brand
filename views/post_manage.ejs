@@ -15,8 +15,11 @@
     </li>
     <% }) %>
 </li>
+
 <div class="pager">
-    Amount: <%= total%> 
+    <% for(var i=1; i<=pageNum ; i++) { %>
+        <a class="btn <% if(i==page){ %>btn-danger<%}else{%> btn-default <%}%>" href="/post_manage/<%= i%>" ><%= i%></a>
+    <% } %>
 </div>
 
 </div>

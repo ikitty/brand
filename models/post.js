@@ -52,26 +52,20 @@ Post.getPostList = function( page , callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
 
-        db.collection('posts', function (err, collection) {
-            if (err) {
+        var count = 10 ;
+        var query = {};
+        //if (name) { query.name = name; }
+
+        db.collection('posts').count(query, function (err, total) {
+            db.collection('posts').find(query, {
+                skip: (page - 1)*count,
+                limit: count
+            }).sort({
+                time: -1
+            }).toArray(function (err, docs) {
                 mongodb.close();
-                return callback(err);
-            }
-            var query = {};
-            //if (name) { query.name = name; }
-
-            collection.count(query, function (err, total) {
-                collection.find(query, {
-                    skip: (page - 1)*10,
-                    limit: 10
-                }).sort({
-                    time: -1
-                }).toArray(function (err, docs) {
-                    mongodb.close();
-                    if (err) { return callback(err); }
-
-                    callback(null, docs, total);
-                });
+                if (err) { return callback(err); }
+                callback(null, docs, total, count);
             });
         });
     });

@@ -85,7 +85,7 @@ module.exports = function(app) {
                         statusCode = 200
                         result = '/images/' + uploadDir + '/' + filename;
                     }
-                    fs.unlink(file.path, function(){ })
+                    fs.unlink(file.path, function(){  })
                     callback(fields, result, statusCode );
                 }); 
             } 
@@ -186,16 +186,17 @@ module.exports = function(app) {
     //==============================
 
     //postMange
-    app.get('/post_manage', function (req, res) {
+    app.get('/post_manage/:page?', function (req, res) {
         //todo pager
-        Post.getPostList( 1, function (err, posts, total) {
+        Post.getPostList( req.params.page || 1, function (err, posts, total, count) {
             if (err) { posts = []; } 
 
             res.render('post_manage', {
                 title: '文章列表',
                 path: 'post_manage',
                 posts: posts,
-                total: total,
+                page: req.params.page || 1,
+                pageNum: Math.ceil(total/count),
                 success: req.flash('success').toString(),
                 error: req.flash('error').toString()
             });
