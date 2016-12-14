@@ -185,28 +185,31 @@ Post.remove = function(id,  callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
         
-        db.collection('posts', function (err, collection) {
-            if (err) { mongodb.close(); return callback(err); }
-            
-            var query = {"_id": Oid(id)}
-            collection.findOne(query, function (err, doc) {
-                if (err) { mongodb.close(); return callback(err); }
-
-                collection.remove(query, {
-                    w: 1
-                }, function (err) {
-                    mongodb.close();
-                    if (err) { return callback(err); }
-                    callback(null);
-                });
-            });
+        var query = {"_id": Oid(id)}
+        db.collection('posts').remove(query, {
+            w: 1
+        }, function (err) {
+            mongodb.close();
+            if (err) { return callback(err); }
+            callback(null);
         });
     });
 };
 
 
+//remove all by cate
+Post.removeAllByCate = function(cate,  callback) {
+    mongodb.open(function (err, db) {
+        if (err) { return callback(err); }
 
-
+        var query = {"cate": cate }
+        db.collection('posts').remove(query, {w:1}, function (err) {
+            mongodb.close();
+            if (err) { return callback(err); }
+            callback(null);
+        });
+    });
+};
 
 //============
 //todo getUpdate pv

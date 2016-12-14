@@ -162,14 +162,23 @@ module.exports = function(app) {
     app.get('/remove_cate/:id', checkLogin);
     app.get('/remove_cate/:id', function (req, res) {
         var D = new Cate();
-        D.remove(req.params.id, function (err) {
+        var cate = req.params.id ;
+        console.log(1);
+        D.remove(cate, function (err, doc) {
             if (err) {
                 req.flash('error', err); 
                 return res.redirect('back');
             }
-            req.flash('success', '操作成功!');
-            res.redirect('/cate');
+            Post.removeAllByCate(doc.name, function (err) {
+                if (err) {
+                    req.flash('error', err); 
+                    return res.redirect('back');
+                }
+                req.flash('success', '操作成功，品牌和对应文档都已删除!');
+                res.redirect('/cate');
+            });
         });
+
     });
 
     //==============================
@@ -224,7 +233,7 @@ module.exports = function(app) {
                 return res.redirect('/');
             }
             req.flash('success', '发布成功!');
-            res.redirect('/');
+            res.redirect('/post_manage');
         });
     });
 

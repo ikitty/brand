@@ -24,20 +24,12 @@ Cate.prototype.save = function(callback) {
 
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
-        db.collection('cate', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            collection.insert(D, {
-                safe: true
-            }, function (err) {
-                mongodb.close();
-                if (err) {
-                    return callback(err);
-                }
-                callback(null);
-            });
+        db.collection('cate').insert(D, {
+            safe: true
+        }, function (err) {
+            mongodb.close();
+            if (err) { return callback(err); }
+            callback(null);
         });
     });
 };
@@ -45,60 +37,40 @@ Cate.prototype.save = function(callback) {
 Cate.prototype.getAll = function(callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
-        db.collection('cate', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            collection.find().toArray((err, docs) => {
-                mongodb.close();
-                if (err) { return callback(er) ; }
-                callback(null, docs)
-            })
-        });
+        db.collection('cate').find().toArray((err, docs) => {
+            mongodb.close();
+            if (err) { return callback(er) ; }
+            callback(null, docs)
+        })
     });
 };
 Cate.prototype.getOne = function(id, callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
-        db.collection('cate', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            collection.findOne({
-                "_id": Oid(id)
-            }, function (err, doc) {
-                mongodb.close();
-                if (err) { return callback(err); }
-                callback(null, doc);
-            });
+        db.collection('cate').findOne({
+            "_id": Oid(id)
+        }, function (err, doc) {
+            mongodb.close();
+            if (err) { return callback(err); }
+            callback(null, doc);
         });
     });
 };
 Cate.prototype.update = function(id, name, img,  callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
-        db.collection('cate', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            var modify = {}
-            modify.name = name 
-            img && ( modify.img = img )
 
-            collection.updateOne({
-                "_id": Oid(id)
-            }, {
-                $set: modify
-            }, function (err) {
-                mongodb.close();
-                if (err) {
-                    return callback(err);
-                }
-                callback(null);
-            });
+        var modify = {"name": name}
+        img && ( modify.img = img )
+
+        db.collection('cate').updateOne({
+            "_id": Oid(id)
+        }, {
+            $set: modify
+        }, function (err) {
+            mongodb.close();
+            if (err) { return callback(err); }
+            callback(null);
         });
     });
 };
@@ -107,20 +79,17 @@ Cate.prototype.remove = function(id, callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
 
-        db.collection('cate', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
+        db.collection('cate').findOne({'_id': Oid(id)}, function (err, doc) {
+            if (err) { mongodb.close();  return callback(err); }
 
-            collection.remove({
+            db.collection('cate').remove({
                 "_id": Oid(id)
             }, { w: 1 }, function (err) {
                 mongodb.close();
                 if (err) { return callback(err); }
-                callback(null);
+                callback(null, doc);
             });
-        });
+        })
     });
 };
 

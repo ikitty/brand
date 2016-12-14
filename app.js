@@ -7,10 +7,10 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 var flash = require('connect-flash');
-var multer  = require('multer');
+//var multer  = require('multer');
 var settings = require('./settings');
 
-var accessLog = fs.createWriteStream('access.log', {flags: 'a'});
+//var accessLog = fs.createWriteStream('access.log', {flags: 'a'});
 var errorLog = fs.createWriteStream('error.log', {flags: 'a'});
 
 var app = express();
