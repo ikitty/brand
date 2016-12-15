@@ -141,6 +141,7 @@ module.exports = function(app) {
             });
         });
     });
+    //todo 修改品牌的时候同步修改对应文章的品牌
     app.post('/edit_cate/:id', checkLogin);
     app.post('/edit_cate/:id', function (req, res) {
         //如果没上传图片，则不会修改图片
