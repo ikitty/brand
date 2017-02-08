@@ -16,7 +16,7 @@ article{font-size:16px;min-height:700px;padding:20px 20px 20px 20px;background-c
 /* =====bootstrap rest===== */
 .form-horizontal .form-group {margin-left:0px;margin-right:0px;}
 .form_key {float:left;width: 100px;height:34px;line-height:34px;text-align:center;}
-.form_val {float:left;width: 850px;}
+.form_val {float:left;width: 880px;}
 .form_val input ,
 .form_val select {width:42%;}
 

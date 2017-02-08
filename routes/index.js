@@ -382,6 +382,12 @@ module.exports = function(app) {
             res.end(img);
         })
     });
+    app.post('/images/attachment/', function (req, res) {
+        doImgUpload(req, 'attachment',  function (args, img, statusCode) {
+            res.writeHead(statusCode, { 'Content-type': 'text/html' });
+            res.end(img);
+        })
+    });
 
     app.use(function (req, res) { res.render("404"); });
 
