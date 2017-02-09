@@ -6899,7 +6899,6 @@ _e(function (E, $) {
             isAttachment: 1 
         });
         $('.alexAttachment').click(function (e) {
-            config.uploadImgUrl = config.uploadAttachUrl ;
             event = e;
             upfileAttach.selectFiles();
         });
