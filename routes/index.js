@@ -4,6 +4,7 @@ var crypto = require('crypto'),
     Post = require('../models/post.js'),
     Cate = require('../models/cate.js'),
     formidable = require('formidable'),
+    async = require('async'),
     path = require('path');
 
     
@@ -16,40 +17,59 @@ module.exports = function(app) {
 
     //show FE page
     app.get('/show/:cate?/:id?', function (req, res) {
-        Post.getAllByCate(req.params.cate || '', function (err, posts, total) {
-            if (posts.length === 0) {
-                // no content
-                res.writeHead(200, { 'Content-type': 'text/html' });
-                res.end('No Content');
-                return ;
-            }
-            var id = req.params.id || posts[0]._id
+        var doLogin = function(callback){
+            var login = require('../models/login')
+            login.login(req, res, '/show', callback)
+        }
 
-            if (err) { posts = []; } 
-            //{customCate:[{},{}]}
-            var ret = {} ;
-            posts.forEach(k=>{
-                k.customCate && (ret[k.customCate] && ret[k.customCate].push(k) || (ret[k.customCate]=[k]) );
-            })
-            var showPost = posts.filter(item => item._id == id)
-            showPost = showPost[0] || {title: 'not found', cate:'not found'}
+        var getData = function (username, callback) {
 
-            //get cate
-            var D = new Cate();
-            D.getAll(function (err, docs ) {
-                docs = docs || []
-                var showCate = docs.filter( k => k.name == showPost.cate)
-                var logoImg = showCate.length && showCate[0].img || ''
-                res.render('show_index', {
-                    title: showPost.title,
-                    cate: docs,
-                    logoImg: logoImg,
-                    menus: ret,
-                    post: showPost,
-                    success: req.flash('success').toString(),
-                    error: req.flash('error').toString()
+            Post.getAllByCate(req.params.cate || '', function (err, posts, total) {
+                if (posts.length === 0) {
+                    // no content
+                    res.writeHead(200, { 'Content-type': 'text/html' });
+                    res.end('No Content');
+                    return ;
+                }
+                var id = req.params.id || posts[0]._id
+
+                if (err) { posts = []; } 
+                //{customCate:[{},{}]}
+                var ret = {} ;
+                posts.forEach(k=>{
+                    k.customCate && (ret[k.customCate] && ret[k.customCate].push(k) || (ret[k.customCate]=[k]) );
+                })
+                var showPost = posts.filter(item => item._id == id)
+                showPost = showPost[0] || {title: 'not found', cate:'not found'}
+
+                //get cate
+                var D = new Cate();
+                D.getAll(function (err, docs ) {
+                    docs = docs || []
+                    var showCate = docs.filter( k => k.name == showPost.cate)
+                    var logoImg = showCate.length && showCate[0].img || ''
+                    res.render('show_index', {
+                        title: showPost.title,
+                        cate: docs,
+                        logoImg: logoImg,
+                        menus: ret,
+                        post: showPost,
+                        username: username,
+                        success: req.flash('success').toString(),
+                        error: req.flash('error').toString()
+                    });
+                    callback(null)
                 });
             });
+        }
+
+        async.waterfall([
+            doLogin,
+            getData
+        ], (err, result) => {
+            if (err) {
+                console.log('error: %s'.error, err.message);
+            }
         });
     });
 
@@ -367,11 +387,12 @@ module.exports = function(app) {
         });
     });
 
-    app.get('/logout', checkLogin);
+    //app.get('/logout', checkLogin);
     app.get('/logout', function (req, res) {
         req.session.user = null;
+        req.session.username = null;
         req.flash('success', '登出成功!');
-        res.redirect('/show/');
+        res.redirect('http://passport.oa.com/modules/passport/signout.ashx');
     });
 
 
