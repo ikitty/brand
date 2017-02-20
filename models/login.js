@@ -1,29 +1,25 @@
 var http = require('http');
+var fs = require('fs');
 var xmlreader = require('xmlreader');
 
-var parseCookie = function(cookie) {
-    var cookies = {};
-    if (!cookie) { return cookie; }
-    var list = cookie.split(';');
-    for (var i = 0; i < list.length; i++) {
-        var pair = list[i].split('=');
-        cookies[pair[0].trim()] = pair[1];
-    }
-    return cookies;
-};
-
-
-//todo logout
+var viewLog = fs.createWriteStream('view.log', {flags: 'a'});
 
 var login = function(req, res, abs_path, callback){
+    var oa_ticket = req.cookies.TCOA_TICKET || '' 
+    var ticket = oa_ticket || (req.query && req.query.ticket) || '';
+
+    var d = new Date();
+    var _time = [d.getFullYear(), d.getMonth()+1, d.getDate()].join('-') + ' ' + [d.getHours(), d.getMinutes(), d.getSeconds()].join(':') + ' ' ;
+    //todo needmorei
+    oa_ticket && viewLog.write(_time + oa_ticket + '\n\n');
+
+
     var username = req.session.username ;
     if (username) {
         callback(null, username)
         return  ;
     }
 
-    var ckObj = parseCookie(req.headers.cookie)
-    var ticket = ckObj.TCOA_TICKET || (req.query && req.query.ticket) || '';
 
 	if(ticket){
 		var targetNamespace="http://indigo.oa.com/services/";
@@ -61,11 +57,12 @@ var login = function(req, res, abs_path, callback){
 		dataReq.write(data);  
 		dataReq.end();
 	}else{
-		var signinUrl = 'http://login.oa.com/modules/passport/signin.ashx?url={yourWebsite}';
-		var homeUrl = req.protocol + "://" + req.get('host') + abs_path;	
-		signinUrl = signinUrl.replace('{yourWebsite}', encodeURIComponent(homeUrl));	
-		res.redirect(signinUrl);
+        callback(null, '')
+		//var signinUrl = 'http://login.oa.com/modules/passport/signin.ashx?url={yourWebsite}';
+		//var homeUrl = req.protocol + "://" + req.get('host') + abs_path;	
+		//signinUrl = signinUrl.replace('{yourWebsite}', encodeURIComponent(homeUrl));	
+		//res.redirect(signinUrl);
 	}
 }
 
-exports.login = login;
+module.exports = login ;

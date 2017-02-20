@@ -1,30 +1,18 @@
 var mongodb = require('./db')
 var Oid = require('mongodb').ObjectID 
-
-function Cate(name, img) {
-    this.name = name;
-    this.img = img;
-}
+var Cate = {};
 
 module.exports = Cate;
 
-Cate.prototype.save = function(callback) {
-    var date = new Date();
-    var time = {
-        date: +date,
-        day : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
-        minute : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
-    }
+Cate.save = function(data, callback) {
+    var date = +new Date();
 
-    var D = {
-        name: this.name,
-        time: time,
-        img: this.img
-    };
+    data.created = date
+    data.updated = date
 
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
-        db.collection('cate').insert(D, {
+        db.collection('cate').insert(data, {
             safe: true
         }, function (err) {
             mongodb.close();
@@ -34,7 +22,7 @@ Cate.prototype.save = function(callback) {
     });
 };
 
-Cate.prototype.getAll = function(callback) {
+Cate.getAll = function(callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
         db.collection('cate').find().toArray((err, docs) => {
@@ -44,29 +32,30 @@ Cate.prototype.getAll = function(callback) {
         })
     });
 };
-Cate.prototype.getOne = function(id, callback) {
+Cate.getOne = function(query, callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
-        db.collection('cate').findOne({
-            "_id": Oid(id)
-        }, function (err, doc) {
+        if (query['id']) {
+            query['_id'] = Oid(query['id'])
+            delete query.id
+        }
+        db.collection('cate').findOne(query, function (err, doc) {
             mongodb.close();
             if (err) { return callback(err); }
             callback(null, doc);
         });
     });
 };
-Cate.prototype.update = function(id, name, img,  callback) {
+Cate.update = function(id, data, callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
 
-        var modify = {"name": name}
-        img && ( modify.img = img )
+        data.updated = + new Date()
 
         db.collection('cate').updateOne({
             "_id": Oid(id)
         }, {
-            $set: modify
+            $set: data
         }, function (err) {
             mongodb.close();
             if (err) { return callback(err); }
@@ -75,7 +64,7 @@ Cate.prototype.update = function(id, name, img,  callback) {
     });
 };
 
-Cate.prototype.remove = function(id, callback) {
+Cate.remove = function(id, callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
 

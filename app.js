@@ -46,7 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
     // console.log(req.session) ;
     //模版中可以直接访问user变量了
-    res.locals.user = req.session.user
+    // res.locals.user = req.session.user
     next()
 });
 

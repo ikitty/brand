@@ -1,33 +1,15 @@
 var mongodb = require('./db');
 var Oid = require('mongodb').ObjectID 
 
-function Post(name,  title, cate, post, customCate) {
-    this.name = name;
-    this.title = title;
-    this.cate = cate;
-    this.customCate = customCate;
-    this.post = post;
-}
-
+var Post = {}
 module.exports = Post;
 
 //存储
-Post.prototype.save = function(callback) {
-    var date = new Date();
-    var time = {
-        date: +date,
-        day : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
-        minute : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
-    }
-    var post = {
-        name: this.name,
-        cate: this.cate,
-        customCate: this.customCate,
-        title:this.title,
-        post: this.post,
-        time: time,
-        pv: 0
-    };
+Post.save = function(data, callback) {
+    var date = + new Date()
+    data.created = date;
+    data.updated = date;
+
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
         db.collection('posts', function (err, collection) {
@@ -35,12 +17,12 @@ Post.prototype.save = function(callback) {
                 mongodb.close();
                 return callback(err);
             }
-            collection.insert(post, {
+            collection.insert(data, {
                 safe: true
-            }, function (err) {
+            }, function (err, ret) {
                 mongodb.close();
                 if (err) { return callback(err); }
-                callback(null);
+                callback(null, ret.insertedIds);
             });
         });
     });
@@ -94,43 +76,8 @@ Post.getAllByCate = function(cate, callback) {
     });
 };
 
-//一次获取十篇文章
-Post.getTen = function(name, page, callback) {
-    mongodb.open(function (err, db) {
-        if (err) {
-            return callback(err);
-        }
-        db.collection('posts', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            var query = {};
-            if (name) {
-                query.name = name;
-            }
-            //使用 count 返回特定查询的文档数 total
-            collection.count(query, function (err, total) {
-                //根据 query 对象查询，并跳过前 (page-1)*10 个结果，返回之后的 10 个结果
-                collection.find(query, {
-                    skip: (page - 1)*10,
-                    limit: 10
-                }).sort({
-                    time: -1
-                }).toArray(function (err, docs) {
-                    mongodb.close();
-                    if (err) {
-                        return callback(err);
-                    }
-                    callback(null, docs, total);
-                });
-            });
-        });
-    });
-};
 
-
-Post.edit = function(id, callback) {
+Post.getOne = function(id, callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
         db.collection('posts', function (err, collection) {
@@ -139,32 +86,38 @@ Post.edit = function(id, callback) {
                 return callback(err);
             }
 
-            collection.findOne({
-                "_id": Oid(id)
-            }, function (err, doc) {
+            var query = {_id: Oid(id)}
+            collection.update(query, { $inc: {"pv": 1} }, function (err) {
+                mongodb.close();
+            });
+
+            collection.findOne(query, function (err, doc) {
                 mongodb.close();
                 if (err) { return callback(err); }
+                if (doc) {
+                }
                 callback(null, doc);
             });
         });
     });
 };
 
-//更新一篇文章
-Post.update = function(name, id, newTitle, post,cate, customCate,  callback) {
+Post.update = function(data, callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
+
+        data.updated = + new Date()
+        query = {_id: Oid(data.id)}
+        delete data.id
 
         db.collection('posts', function (err, collection) {
             if (err) {
                 mongodb.close();
                 return callback(err);
             }
-            var query = {"_id": Oid(id), "name": name};
-            //todo 如果是管理员，则不需要name鉴定
 
             collection.update(query, {
-                $set: {post: post, title: newTitle, cate: cate, customCate: customCate}
+                $set: data
             }, function (err) {
                 mongodb.close();
                 if (err) { return callback(err); }
@@ -174,15 +127,12 @@ Post.update = function(name, id, newTitle, post,cate, customCate,  callback) {
     });
 };
 
-//删除一篇文章
 Post.remove = function(id,  callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
         
         var query = {"_id": Oid(id)}
-        db.collection('posts').remove(query, {
-            w: 1
-        }, function (err) {
+        db.collection('posts').remove(query, { w: 1 }, function (err) {
             mongodb.close();
             if (err) { return callback(err); }
             callback(null);
@@ -191,57 +141,16 @@ Post.remove = function(id,  callback) {
 };
 
 
-//remove all by cate
-Post.removeAllByCate = function(cate,  callback) {
+//remove all by parent id
+Post.removeAllByParentId = function(p_id,  callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
 
-        var query = {"cate": cate }
+        var query = {"p_id": p_id }
         db.collection('posts').remove(query, {w:1}, function (err) {
             mongodb.close();
             if (err) { return callback(err); }
             callback(null);
-        });
-    });
-};
-
-//============
-//todo getUpdate pv
-Post.getOne = function(name, day, title, callback) {
-    mongodb.open(function (err, db) {
-        if (err) {
-            return callback(err);
-        }
-        db.collection('posts', function (err, collection) {
-            if (err) {
-                mongodb.close();
-                return callback(err);
-            }
-            collection.findOne({
-                "name": name,
-                "time.day": day,
-                "title": title
-            }, function (err, doc) {
-                if (err) {
-                    mongodb.close();
-                    return callback(err);
-                }
-                if (doc) {
-                    collection.update({
-                        "name": name,
-                        "time.day": day,
-                        "title": title
-                    }, {
-                        $inc: {"pv": 1}
-                    }, function (err) {
-                        mongodb.close();
-                        if (err) {
-                            return callback(err);
-                        }
-                    });
-                    callback(null, doc);
-                }
-            });
         });
     });
 };

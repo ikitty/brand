@@ -1,11 +1,14 @@
-</div>
-</article>
-</section>
 
-<div class="footer">
+<footer>
     &copy; TGideas All rights reserved.
-</div>
+</footer>
 
 <script src="/js/wangEditor.js"></script>
+<script>
+    $(function(){
+        $('#coreContent').css('minHeight', $(window).height() - $('header').height() - $('footer').height() )
+    })
+</script>
+
 </body>
 </html>

@@ -1,0 +1,105 @@
+<%- include header %>
+<div id="coreContent" class="core_content">
+
+
+<h2 ><%=data.project_name %></h2>
+
+<div class="main">
+    <div class="col_side">
+            <input type="text" id="treemenu" value="<%=data.treemenu || '' %>"/>
+            <button type="button" id="btnUpdateMenu" class="btn btn-success">update menu</button>
+    </div>
+    <div class="col_center">
+            <textarea class="form-control" id="postContent" name="post" rows="20" >
+                <h1>mainTitle</h1>
+                <h2>subtilte </h2>
+                <p>predefine content</p>
+                <h2>subtilte </h2>
+                <p>predefine content</p>
+            </textarea>
+            <input type="hidden" id="projectId" value="<%=data._id %>"/>
+            <input type="hidden" id="itemId" value=""/>
+            <button type="button" id="btnSaveItem" class="btn btn-success">save item</button>
+            <button type="button" id="btnUpdateItem" class="btn btn-success">update item</button>
+            <button type="button" id="btnGetItem" class="btn btn-success">get item</button>
+            <button type="button" id="btnRemoveItem" class="btn btn-success">remove item</button>
+    </div>
+</div>
+
+<form method="post" class="form-horizontal" >
+
+    <div class="form-group">
+        <div class="form_val">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form_key">&nbsp;  </label>
+        <div class="form_val">
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    $(function(){
+        var editor = new wangEditor('postContent');
+        var disMenus = ['strikethrough', 'bgcolor', 'emotion', 'video', 'location', 'redo', 'fullscreen']
+        editor.config.menus = editor.config.menus.filter((k) => disMenus.indexOf(k) === -1 )
+        editor.config.uploadImgUrl = '/images/upload';
+        editor.config.uploadImgFileName = 'editorFile'
+        
+        editor.create();
+    })
+    $('#btnSaveItem').click(function(){
+        var pid = $('#projectId').val()
+        $.ajax({
+            url: '/item/add/' + pid,
+            method: 'POST',
+            data: {content: $('#postContent').val()},
+            type: 'json'
+        }).done(function(xhr, status){
+            if(status=='success' && !xhr.error){
+                $('#itemId').val(xhr.message)
+            }
+        })
+    })
+    $('#btnUpdateItem').click(function(){
+        var pid = $('#projectId').val()
+        var itemId = $('#itemId').val()
+        if(!itemId){ console.log('DB insert error, missing item id')   }
+        $.ajax({
+            url: '/item/update/' + pid,
+            method: 'POST',
+            data: {content:$('#postContent').val(), id: itemId},
+            type: 'json'
+        })
+    })
+
+    $('#btnRemoveItem').click(function(){
+        var pid = $('#projectId').val()
+        var itemId = $('#itemId').val()
+        $.ajax({
+            url: '/item/remove/' + pid + '/' + itemId,
+            method: 'GET'
+        })
+    })
+    $('#btnGetItem').click(function(){
+        var pid = $('#projectId').val()
+        var itemId = $('#itemId').val()
+        $.ajax({
+            url: '/item/remove/' + pid + '/' + itemId,
+            method: 'GET'
+        })
+    })
+
+    $('#btnUpdateMenu').click(function(){
+        $.ajax({
+            url: '/menu/update/' + $('#projectId').val(),
+            method: 'POST',
+            data: {treemenu: $('#treemenu').val()},
+            type: 'json'
+        })
+    })
+</script>
+
+</div>
+<%- include footer %>

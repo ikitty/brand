@@ -1,19 +1,16 @@
 <%- include header %>
-<% posts.forEach(function (post, index) { %>
-<div class="post_item">
-    <div>
-        <div><a href="/u/<%= post.name %>/<%= post.time.day %>/<%= post.title %>"><%= post.title %></a></div>
-        <a class="hide" href="/u/<%= post.name %>"><img src="<%= post.head %>" class="r_head" /></a>
-    </div>
-    <div class="info">
-        作者：<a href="/u/<%= post.name %>"><%= post.name %></a> | 日期：<%= post.time.minute %> | 
-        品牌：<a class="tag" href="/tags/<%= post.cate %>"><%= post.cate %></a>
-    </div>
-    <div class="post_cont"><%- post.post %></div>
+<div id="coreContent" class="core_content">
 
-    <div class="info">阅读：<%= post.pv %> </div>
+    <ul class="project_list">
+        <% for(var item in data) { %>
+        <% var d = data[item] %>
+        <li>
+            <div style="background-image:url(<%=(d.cover ||d.logo)%>)">
+            <a href="/show/<%=d.vid %>" target="_blank"><%=d.project_name %></a>
+            </div>
+        </li>
+        <% } %>
+    </ul>
+
 </div>
-<% }) %>
-
-<%- include paging %>
 <%- include footer %>

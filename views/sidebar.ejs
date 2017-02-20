@@ -1,0 +1,7 @@
+<nav class="admin_nav">
+    <a class="def" target="_blank" href="/">项目首页</a>
+    <% if (username) { %>
+    <a href="/cate/get" <% if(locals.path==='cate_list'){%>class="active"<%}%>>项目列表</a>
+    <a href="/cate/add" <% if(locals.path==='cate_add'){%>class="active"<%}%>>新增项目</a>
+    <% } %>
+</nav>

@@ -1,0 +1,36 @@
+<%- include header %>
+
+<section>
+    <%- include sidebar %>
+    <div class="main_wrap"> 
+        <div id="coreContent" class="main"> 
+            <div class="admin_hd ">品牌列表</div>
+            <div class="admin_bd cate_bd ">
+                <ul>
+                <% posts.forEach(function (post, index) { %>
+                    <li>
+                        <div class="cate_list_txt"><a href="/show/<%=post.vid %>" target="_blank"><%= post.project_name %></a></div>
+                        <div class="cate_list_txt"><%= post.vid %> </div>
+                        <div class="cate_list_txt"><%= post.manager %> </div>
+                        <div class="cate_list_txt"><%if(post.private){ %>内部可见<%} else {%>公开 <%}%></div>
+                        <div class="cate_list_img"><img src="<%= post.logo %>"> </div>
+                        <div class="cate_list_img"><img src="<%= post.cover %>"> </div>
+                        <a class="btn btn-danger jsBtnDel" href="javascript:;" data-href="/cate/remove/<%= post._id %>" >删除</a>
+                        <a class="btn btn-default btn_edit" href="/cate/edit/<%=post._id %>">编辑</a>
+                    </li>
+                <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+<script>
+    $('.jsBtnDel').click(function(){
+        if(confirm('这将删除该品牌下所有文章，确认删除该品牌吗？')){
+            window.location.href = $(this).data('href')
+        }
+    })
+</script>
+
+</section>
+<%- include footer %>
