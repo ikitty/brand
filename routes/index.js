@@ -27,6 +27,13 @@ module.exports = function(app) {
     app.get('/show/:vid', checkPermission,  function (req, res) {
         Cate.getOne({vid: req.params.vid}, function (err, doc ) {
             if (err) { doc = []; } 
+            var user = req.session.username
+            if (doc && (doc.manager.indexOf(user) > -1)) {
+                doc.isManager = 1
+            }
+            if (doc && (doc.member.indexOf(user) > -1)) {
+                doc.isMember = 1
+            }
             res.render('show', {
                 title: doc.project_name,
                 path: '',
@@ -107,12 +114,12 @@ module.exports = function(app) {
         if (req.session.username != 'alextang') {
             return res.redirect('404') ;
         }
-        Cate.getAll(function (err, posts ) {
-            if (err) { posts = []; } 
+        Cate.getAll(function (err, doc ) {
+            if (err) { doc = []; } 
             res.render('cate_list', {
                 title: '项目列表',
                 path: 'cate_list',
-                posts: posts,
+                data: doc,
                 success: req.flash('success').toString(),
                 error: req.flash('error').toString()
             });
@@ -123,7 +130,7 @@ module.exports = function(app) {
         res.render('cate', {
             title: '新增项目',
             path: 'cate_add',
-            post: {managerArr:[]},
+            data: {managerArr:[]},
             success: req.flash('success').toString(),
             error: req.flash('error').toString()
         });
@@ -149,7 +156,7 @@ module.exports = function(app) {
             doc.managerArr = doc.manager.split(',')
             res.render('cate', {
                 title: '修改',
-                post: doc,
+                data: doc,
                 success: req.flash('success').toString(),
                 error: req.flash('error').toString()
             });
@@ -210,6 +217,7 @@ module.exports = function(app) {
             author: req.session.username,
             last_editor: req.session.username,
             content: req.body.content,
+            pid: req.params.pid,
             pv: 1
         };
         if (!req.params.pid) {
@@ -241,6 +249,19 @@ module.exports = function(app) {
     });
 
 
+
+    //check vid duplicating
+    app.get('/vid/check/:vid', function (req, res) {
+        Cate.getOne({vid: req.params.vid},function (err, doc ) {
+            var ret ;
+            if (doc && doc.vid) {
+                ret = {error:1, message: 'duplicate'}
+            }else {
+                ret = {error:0, message: 'ok'}
+            }
+            res.json(ret);
+        });
+    });
 
     
 
@@ -320,8 +341,10 @@ module.exports = function(app) {
                 next()
             });
         }else if (path==='/item/add/:pid' || path === '/item/update/:pid' || path === '/item/remove/:pid/:id' || path==='/item/get/:pid/:id'){
+            //todo: should get pid from Posts table, and query Cate table by this pid
             Cate.getOne({id: req.params.pid},function (err, doc ) {
                 if (err) { doc = []; } 
+                // console.log(doc) ;
                 var owner = doc.manager + ',' + doc.member 
                 var ownerArr = owner.split(',') || []
                 // user = 'x'

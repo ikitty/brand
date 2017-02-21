@@ -19,6 +19,13 @@
     <% } %>
     <div class="admin_welcome">
         <% if (username) { %>
+            
+            <% if (data.isManager) { %>
+                <span class="btn btn-success">编辑</span>
+                <a href="/cate/edit/<%=data._id %>" target="_blank" class="btn btn-success">管理</a>
+            <% }else if (data.isMember) { %>
+                <span class="btn btn-success">编辑</span>
+            <% } %>
             <span class=""><%= username %>，  </span>
             <a href="/cate/get">后台管理</a>
         <% } else { %>

@@ -17,7 +17,11 @@ var app = express();
 
 app.set('port', process.env.PORT || 3009);
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.engine('.html', require('ejs').__express);
+app.set('view engine', 'html');
+
+
+
 //app.use(logger('dev'));
 //app.use(logger({stream: accessLog}));
 app.use(bodyParser.urlencoded({ extended: false }));

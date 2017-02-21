@@ -1,13 +1,13 @@
-<%- include header %>
+<%- include header.html %>
 
 <section>
-    <%- include sidebar %>
-    <div class="main_wrap"> 
-        <div id="coreContent" class="main"> 
+    <%- include sidebar.html %>
+    <div class="admin_main_wrap"> 
+        <div id="coreContent" class="admin_main"> 
             <div class="admin_hd ">品牌列表</div>
             <div class="admin_bd cate_bd ">
                 <ul>
-                <% posts.forEach(function (post, index) { %>
+                <% data.forEach(function (post, index) { %>
                     <li>
                         <div class="cate_list_txt"><a href="/show/<%=post.vid %>" target="_blank"><%= post.project_name %></a></div>
                         <div class="cate_list_txt"><%= post.vid %> </div>
@@ -33,4 +33,4 @@
 </script>
 
 </section>
-<%- include footer %>
+<%- include footer.html %>

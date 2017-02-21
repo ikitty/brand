@@ -1,0 +1,184 @@
+<%- include header.html %>
+
+<div id="coreContent" class="core_content">
+
+
+<h2 ><%=data.project_name %></h2>
+<span class=""><%=data.treemenu || ''%></span>
+    <input type="hidden" id="treemenu" value="<%=data.treemenu || '' %>"/>
+
+<div class="show_cont">
+    <div class="show_side">
+        <div class="menus">
+            <span id="btnAddMenu" class="btn btn-primary">add menu</span>
+            <button type="button" id="btnUpdateMenu" class="btn btn-success">update menu</button>
+        </div>
+    </div>
+    <div class="show_main">
+        <div id="viewMode" class="">
+            
+        </div>
+
+        <div id="editMode" class="">
+            <div id="postContent">
+                
+                <h2>标题</h2>
+                <h3>子标题 </h3>
+            </div>
+            <textarea class="form-control hide" id="ostContent" name="post" rows="20" >
+                <h2>标题</h2>
+                <h3>子标题 </h3>
+                <p>...</p>
+                <h3>子标题 </h3>
+                <p>...</p>
+            </textarea>
+            <input type="hidden" id="projectId" value="<%=data._id %>"/>
+            <input type="hidden" id="itemId" value=""/>
+            <button type="button" id="btnSaveItem" class="btn btn-success">save item</button>
+            <button type="button" id="btnUpdateItem" class="btn btn-success">update item</button>
+            <button type="button" id="btnGetItem" class="btn btn-success">get item</button>
+            <button type="button" id="btnRemoveItem" class="btn btn-success">remove item</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/wangEditor.js"></script>
+<script type="text/javascript">
+    //tree
+    $(function () {
+        $('#btnAddMenu').click(function () {
+            var treenode = $('<span class="treenode_item" contenteditable="true">new menu <i class="treenode_remove">&#215;</i></span>')
+            $(this).before(treenode)
+            treenode.focus()
+        })
+        $('div.menus').on('focusin', function (e) {
+            // console.log(e.target.innerHTML) ;
+        }).on('focusout', function (e) {
+            $(e.target).attr('contenteditable', 'false')
+            console.log('insert item ') ;
+            var self = $(e.target)
+            $('#postContent').html('<h2>' + self.html() + '</h2>')
+
+            var pid = $('#projectId').val()
+            $.ajax({
+                url: '/item/add/' + pid,
+                method: 'POST',
+                data: {content: $('#postContent').html()},
+                type: 'json'
+            }).done(function(xhr, status){
+                if(status=='success' ){
+                    self.attr('data-id', xhr.message)
+                }
+            })
+
+            //handle treeview
+
+        }).on('dblclick', function (e) {
+            if (!$(e.target).hasClass('treenode_item')) {
+                return  ;
+            }
+
+            $(e.target).attr('contenteditable', 'true').focus()
+
+        }).on('click', function (e) {
+            var self = $(e.target)
+            var pid = $('#projectId').val()
+            if (self.hasClass('treenode_item')) {
+                var itemId = self.attr('data-id')
+                if (!itemId || !pid) { return  ; }
+                //todo : why sockerts closed？
+                $.ajax({
+                    url: '/item/get/' + pid + '/' + itemId
+                }).done(function (xhr, status) {
+                    console.log('hi', xhr.message) ;
+                    $('#postContent').html(xhr.message.content)
+                    // initEditor();
+                })
+                return  ;
+            }
+            if (self.hasClass('treenode_remove')) {
+                var itemId = self.parent().attr('data-id')
+                if (!itemId || !pid) { return  ; }
+                $.ajax({
+                    url: '/item/remove/' + pid + '/' + itemId
+                }).done(function (xhr, status) {
+                    console.log('remove', xhr.message) ;
+                    self.remove()
+                    //load default item content and init it
+                    // $('#postContent').html(xhr.message.content)
+                    // initEditor();
+                })
+                return  ;
+                
+            }
+        })
+    })
+    function initEditor (content) {
+        var editor = new wangEditor('postContent');
+        var disMenus = ['strikethrough', 'bgcolor', 'emotion', 'video', 'location', 'redo', 'fullscreen']
+        editor.config.menus = editor.config.menus.filter((k) => disMenus.indexOf(k) === -1 )
+        editor.config.uploadImgUrl = '/images/upload';
+        editor.config.uploadImgFileName = 'editorFile'
+        editor.create();
+
+        window.alexEditor = editor;
+    }
+
+    $(function(){
+        initEditor();
+    })
+    $('#btnSaveItem').click(function(){
+        var pid = $('#projectId').val()
+        $.ajax({
+            url: '/item/add/' + pid,
+            method: 'POST',
+            data: {content: $('#postContent').val()},
+            type: 'json'
+        }).done(function(xhr, status){
+            if(status=='success' && !xhr.error){
+                $('#itemId').val(xhr.message)
+            }
+        })
+    })
+    $('#btnUpdateItem').click(function(){
+        var pid = $('#projectId').val()
+        var itemId = $('#itemId').val()
+        if(!itemId){ console.log('DB insert error, missing item id')   }
+        $.ajax({
+            url: '/item/update/' + pid,
+            method: 'POST',
+            data: {content:$('#postContent').val(), id: itemId},
+            type: 'json'
+        })
+    })
+
+    $('#btnRemoveItem').click(function(){
+        var pid = $('#projectId').val()
+        var itemId = $('#itemId').val()
+        $.ajax({
+            url: '/item/remove/' + pid + '/' + itemId,
+            method: 'GET'
+        })
+    })
+    $('#btnGetItem').click(function(){
+        var pid = $('#projectId').val()
+        var itemId = $('#itemId').val()
+        $.ajax({
+            url: '/item/get/' + pid + '/' + itemId,
+            method: 'GET'
+        })
+    })
+
+    $('#btnUpdateMenu').click(function(){
+        $.ajax({
+            url: '/menu/update/' + $('#projectId').val(),
+            method: 'POST',
+            data: {treemenu: $('#treemenu').val()},
+            type: 'json'
+        })
+    })
+</script>
+
+
+</div>
+<%- include footer.html %>
