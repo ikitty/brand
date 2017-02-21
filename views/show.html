@@ -44,8 +44,21 @@
 
 <script src="/js/wangEditor.js"></script>
 <script type="text/javascript">
+    //todo single js
+    //cache dom var
+
     //tree
     $(function () {
+        //add menu event
+        //cache var
+            //elEditor, defContent, fn:addItem, 
+        //event delegate
+            //blur - reInitEditor -  db:insertItem (fn:addItem) - dom:setId
+            //blur - hasId && updateOnly
+            //updateTreemenu - getJsonFromDOM(fn) - db:updateCate(fn)
+            //renderTreemenu - getDOMFromJson(fn) 
+            //remove.click - db:removeItem - dom:render - updateTreemenu 
+
         $('#btnAddMenu').click(function () {
             var treenode = $('<span class="treenode_item" contenteditable="true">new menu <i class="treenode_remove">&#215;</i></span>')
             $(this).before(treenode)
