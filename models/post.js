@@ -87,15 +87,12 @@ Post.getOne = function(id, callback) {
             }
 
             var query = {_id: Oid(id)}
-            collection.update(query, { $inc: {"pv": 1} }, function (err) {
-                mongodb.close();
-            });
+
+            collection.update(query, { $inc: {"pv": 1} }, function (err) { });
 
             collection.findOne(query, function (err, doc) {
                 mongodb.close();
                 if (err) { return callback(err); }
-                if (doc) {
-                }
                 callback(null, doc);
             });
         });

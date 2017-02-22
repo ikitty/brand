@@ -104,6 +104,7 @@ module.exports = function(app) {
     //menu
     app.post('/menu/update/:id', checkPermission, function (req, res) {
         var data = { treemenu: req.body.treemenu };
+
         Cate.update(req.params.id, data, function (err) {
             if (err) { return res.json({error:1, message: 'db error: '+ err.message}) }
             res.json({error:0, message: 'ok'})
@@ -200,18 +201,6 @@ module.exports = function(app) {
     //==============================
     //=============Handle item
     //==============================
-    app.post('/item/update/:pid', checkLogin,  checkPermission, function (req, res) {
-        var data = {
-            last_editor: req.session.username,
-            id: req.body.id,
-            content: req.body.content
-        };
-        Post.update(data, function (err) {
-            if (err) { return res.json({error:1, message: 'db error: '+ err.message}) }
-            res.json({error:0, message: 'ok'})
-        });
-    });
-
     app.post('/item/add/:pid', checkLogin, checkPermission, function (req, res) {
         var data = {
             author: req.session.username,
@@ -233,6 +222,20 @@ module.exports = function(app) {
             res.json({error:0, message: id && id[0]})
         });
     });
+
+    app.post('/item/update/:pid/:id', checkLogin,  checkPermission, function (req, res) {
+        console.log(req.body) ;
+        var data = {
+            last_editor: req.session.username,
+            id: req.params.id,
+            content: req.body.content
+        };
+        Post.update(data, function (err) {
+            if (err) { return res.json({error:1, message: 'db error: '+ err.message}) }
+            res.json({error:0, message: 'ok'})
+        });
+    });
+
 
     app.get('/item/remove/:pid/:id',checkLogin, checkPermission, function (req, res) {
         Post.remove(req.params.id,  function (err) {
@@ -340,14 +343,12 @@ module.exports = function(app) {
                 }
                 next()
             });
-        }else if (path==='/item/add/:pid' || path === '/item/update/:pid' || path === '/item/remove/:pid/:id' || path==='/item/get/:pid/:id'){
+        }else if (path==='/item/add/:pid' || path.indexOf('/item/update/')>-1|| path === '/item/remove/:pid/:id' || path==='/item/get/:pid/:id'){
             //todo: should get pid from Posts table, and query Cate table by this pid
             Cate.getOne({id: req.params.pid},function (err, doc ) {
                 if (err) { doc = []; } 
-                // console.log(doc) ;
                 var owner = doc.manager + ',' + doc.member 
                 var ownerArr = owner.split(',') || []
-                // user = 'x'
                 if (ownerArr.indexOf(user) == -1) {
                     return res.json({error:1, message:'权限不够'})
                 }
