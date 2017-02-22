@@ -157,7 +157,7 @@ $(function () {
 
 
         if (self.hasClass('treenode_item')) {
-            if (itemId === activeItemId) {
+            if (!itemId || (itemId === activeItemId)) {
                 return  ;
             }
             //update active item 
@@ -166,7 +166,6 @@ $(function () {
                 dbUpdateItem(pid, activeItemId, function (v) {
                     console.log('saved active item', v) ;
 
-                    if (!itemId) { return  ; }
                     dbGetItem(pid, itemId, function (v) {
                         activeItemId = itemId
                         alexEditor.$txt.html(v)
@@ -174,12 +173,11 @@ $(function () {
                     })
                 })
             }else {
-                    if (!itemId) { return  ; }
-                    dbGetItem(pid, itemId, function (v) {
-                        activeItemId = itemId
-                        alexEditor.$txt.html(v)
-                        console.log('got item content: ', v) ;
-                    })
+                dbGetItem(pid, itemId, function (v) {
+                    activeItemId = itemId
+                    alexEditor.$txt.html(v)
+                    console.log('got item content: ', v) ;
+                })
             }
 
             return  ;
