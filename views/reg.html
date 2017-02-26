@@ -1,0 +1,37 @@
+<%- include header.html %>
+<div class="core_content" id="coreContent">
+    
+<form method="post" class="form-horizontal">
+    <div class="form-group">
+        <label for="iptTit" class="form_key ">用户</label>
+        <div class="form_val">
+            <input type="text" name="name" class="form-control" id="iptTit">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form_key ">密码</label>
+        <div class="form_val">
+            <input type="password" name="password" class="form-control" >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form_key ">确认密码</label>
+        <div class="form_val">
+            <input type="password" name="password-repeat" class="form-control" >
+        </div>
+    </div>
+    <div class="form-group hide">
+        <label class="form_key ">邮箱</label>
+        <div class="form_val">
+            <input type="email" name="email" class="form-control" >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form_key ">&nbsp;</label>
+        <div class="form_val">
+            <button type="submit" class="btn btn-success">注册</button>
+        </div>
+    </div>
+</form>
+</div>
+<%- include footer.html %>

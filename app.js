@@ -1,41 +1,31 @@
 var path = require('path');
 var fs = require('fs');
 var express = require('express');
-var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+
 var MongoStore = require('connect-mongo')(session);
 var flash = require('connect-flash');
-//var multer  = require('multer');
 var settings = require('./settings');
-
-//var accessLog = fs.createWriteStream('access.log', {flags: 'a'});
 var errorLog = fs.createWriteStream('error.log', {flags: 'a'});
 
-var app = express();
+//var multer  = require('multer'); //for img upload
 
+
+//start
+var app = express();
 app.set('port', process.env.PORT || 3009);
 app.set('views', path.join(__dirname, 'views'));
 app.engine('.html', require('ejs').__express);
 app.set('view engine', 'html');
 
-
-
-//app.use(logger('dev'));
-//app.use(logger({stream: accessLog}));
 app.use(bodyParser.urlencoded({ extended: false }));
-//app.use(multer({
-    //dest: './public/images',
-    //rename: function (fieldname, filename) {
-        //return filename;
-    //}
-//}));
 app.use(cookieParser());
 app.use(session({
     secret: settings.cookieSecret,
     key: settings.db,//cookie name
-    cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//30 days
+    cookie: {maxAge: 1000 * 3600 * 24 * 30},
     store: new MongoStore({
         db: settings.db,
         host: settings.host,
@@ -47,17 +37,12 @@ app.use(session({
 app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use((req, res, next) => {
-    // console.log(req.session) ;
-    //模版中可以直接访问user变量了
-    // res.locals.user = req.session.user
-    next()
-});
-
-
+// handle route
 var router = require('./routes/');
 router(app);
 
+
+// handle error
 app.use(function (err, req, res, next) {
     var d = new Date();
     var d1 = [d.getFullYear(), d.getMonth()+1, d.getDate()].join('-');
@@ -68,5 +53,5 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(app.get('port'), function(){
-    console.log('Express server listening on port ' + app.get('port'));
+    console.log('Server listening on port ' + app.get('port'));
 });

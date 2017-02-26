@@ -7,12 +7,15 @@ var crypto = require('crypto'),
     async = require('async'),
     path = require('path');
 
-    
-var settings = require('../settings');
-
 module.exports = function(app) {
-    app.get('*', getLoginStatus)
+    //getLoginStatus
+    app.use((req, res, next) => {
+        //get oa login
+        res.locals.username = req.session.username || ''
+        next()
+    });
 
+    //=============IndexList============
     app.get('/', function (req, res) {
         Cate.getAll(function (err, docs ) {
             docs = docs || []
@@ -24,6 +27,7 @@ module.exports = function(app) {
             });
         });
     });
+    //=============ProjectShow============
     app.get('/show/:vid', checkPermission,  function (req, res) {
         Cate.getOne({vid: req.params.vid}, function (err, doc ) {
             if (err) { doc = []; } 
@@ -84,6 +88,7 @@ module.exports = function(app) {
                     ret[item] = {statusCode: statusCode, img: result}
                     callback(err)
 
+                    //todo in MAC
                     fs.unlink(file.path, function(){  })
                 }); 
             },(err) => {
@@ -112,9 +117,6 @@ module.exports = function(app) {
     });
 
     app.get('/cate/get', checkLogin, function (req, res) {
-        if (req.session.username != 'alextang') {
-            return res.redirect('404') ;
-        }
         Cate.getAll(function (err, doc ) {
             if (err) { doc = []; } 
             res.render('cate_list', {
@@ -178,7 +180,6 @@ module.exports = function(app) {
             });
         })
     });
-
 
     app.get('/cate/remove/:id',checkPermission, function (req, res) {
         var cate = req.params.id ;
@@ -271,27 +272,80 @@ module.exports = function(app) {
     //==============================
     //=============Common
     //==============================
+    //handle login and logout using OA API, [login, logout]
 
-    //get login status
-    function getLoginStatus(req, res, next) {
-        var login = require('../models/login')
-        login(req, res, '/', function (err, username) {
-            req.session.username = username 
-            res.locals.username = username
-            next()
-        })
-    }
-    app.get('/login', function (req, res) {
-        var signinUrl = 'http://login.oa.com/modules/passport/signin.ashx?url={yourWebsite}';
-        var homeUrl = req.protocol + "://" + req.get('host') + '/';	
-        signinUrl = signinUrl.replace('{yourWebsite}', encodeURIComponent(homeUrl));	
-        res.redirect(signinUrl);
+    app.get('/reg', function (req, res) {
+        res.render('reg', {
+            title: '注册',
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
     });
 
+    app.post('/reg', checkNotLogin, function (req, res) {
+        var name = req.body.name,
+        password = req.body.password,
+        password_re = req.body['password-repeat'];
+        if (password_re != password) {
+            req.flash('error', '两次输入的密码不一致!'); 
+            return res.redirect('/reg');
+        }
+        var md5 = crypto.createHash('md5'),
+            password = md5.update(req.body.password).digest('hex');
+        var newUser = new User({
+            name: req.body.name,
+            password: password,
+            email: req.body.email
+        });
+        User.get(newUser.name, function (err, user) {
+            if (user) {
+                req.flash('error', '用户已存在!');
+                return res.redirect('/reg');
+            }
+            newUser.save(function (err, user) {
+                if (err) {
+                    req.flash('error', err);
+                    return res.redirect('/reg');
+                }
+                req.session.username = user.name;
+                req.flash('success', '注册成功!');
+                res.redirect('/');
+            });
+        });
+    });
+
+    app.get('/login', function (req, res) {
+        res.render('login', {
+            title: '登录',
+            data: {},
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        }); 
+    });
+
+    app.post('/login', function (req, res) {
+        var md5 = crypto.createHash('md5'),
+        password = md5.update(req.body.password).digest('hex');
+        User.get(req.body.name, function (err, user) {
+            if (!user) {
+                req.flash('error', '用户不存在!'); 
+                return res.redirect('/login');
+            }
+            if (user.password != password) {
+                req.flash('error', '密码错误!'); 
+                return res.redirect('/login');
+            }
+            req.session.username = user.name;
+            req.flash('success', '登陆成功!');
+            res.redirect('/');
+        });
+    });
+
+    //app.get('/logout', checkLogin);
     app.get('/logout', function (req, res) {
         req.session.username = null;
         req.flash('success', '登出成功!');
-        res.redirect('http://passport.oa.com/modules/passport/signout.ashx');
+        res.redirect('/');
     });
 
 

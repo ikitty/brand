@@ -1,7 +1,14 @@
 <%- include header.html %>
 
 <section>
-    <%- include sidebar.html %>
+    <nav class="admin_nav">
+        <a class="def" target="_blank" href="/">项目首页</a>
+        <% if (username) { %>
+        <a href="/cate/get" <% if(locals.path==='cate_list'){%>class="active"<%}%>>项目列表</a>
+        <a href="/cate/add" <% if(locals.path==='cate_add'){%>class="active"<%}%>>新增项目</a>
+        <% } %>
+    </nav>
+
     <div class="admin_main_wrap"> 
         <div id="coreContent" class="admin_main"> 
             <div class="admin_hd ">品牌列表</div>
@@ -14,7 +21,6 @@
                         <div class="cate_list_txt"><%= post.manager %> </div>
                         <div class="cate_list_txt"><%if(post.private){ %>内部可见<%} else {%>公开 <%}%></div>
                         <div class="cate_list_img"><img src="<%= post.logo %>"> </div>
-                        <div class="cate_list_img"><img src="<%= post.cover %>"> </div>
                         <a class="btn btn-danger jsBtnDel" href="javascript:;" data-href="/cate/remove/<%= post._id %>" >删除</a>
                         <a class="btn btn-default btn_edit" href="/cate/edit/<%=post._id %>">编辑</a>
                     </li>

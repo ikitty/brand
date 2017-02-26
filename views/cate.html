@@ -1,4 +1,6 @@
 <%- include header.html %>
+<script type="text/javascript" src="/js/cate.js"></script>
+
 <div id="coreContent" class="core_content">
 
 <div class="admin_hd">添加项目</div>
@@ -13,54 +15,24 @@
         <label class="form_key ">项目标识</label>
         <div class="form_val">
             <input type="text" name="vid" id="vidText" value="<%=data.vid || '' %>" class="form-control" > 
-            <span id="vidCheckRet">keyong</span>
+            <span id="vidCheckRet"></span>
         </div>
     </div>
     <div class="form-group">
         <label class="form_key ">管理员</label>
-        <div class="form_val">
-            <input type="hidden" name="manager" id="managerList" value="<%=data.manager || username %>">
-
-            <span class="user_item"><%=username %></span>
+        <div class="form_val" id="managerSection">
+            <input type="hidden" name="manager" id="managerList" class="manager_list" value="<%=data.manager || username %>">
             <div class="user_item_list">
-                <% data.managerArr.forEach(function (item, index) { %>
-                    <span class="user_item"><%=item %></span>
-                <% }) %>
-                <input type="text" value="" class="userItem">
-                <input type="text" value="" class="userItem">
             </div>
 
-            <span class="btn btn-primary" id="btnTest">Add </span>
+            <input type="text" value="" class="input_add_user">
         </div>
-        <script>
-            $('#vidText').on('blur', function(){
-                var vid = $(this).val().trim()
-                $.ajax({
-                    url: '/vid/check/' + vid
-                }).done(function(xhr, status){
-                    if(status=='success'){
-                        $('#vidCheckRet').html(xhr.error ? '重复' : '可用')
-                    }
-                })
-            })
-            $('.userItem').on('blur', function(){
-                var user = $(this).val().trim()
-                var oldList = $('#managerList').val().split(',');
-                if($.inArray(user, oldList) == -1) {
-                    oldList.push(user)
-                }
-                $('#managerList').val(oldList.join(','))
-            })
-        </script>
     </div>
     <div class="form-group">
         <label class="form_key ">项目成员</label>
         <div class="form_val">
             <input type="hidden" name="member" value="<%=data.member || ''%>">
-            <span class="user_item"><%=username %></span>
             <input type="text" value="" class="user_item_ipt">
-            <!-- todo: show member -->
-            <span class="btn btn-primary">Add</span>
         </div>
     </div>
     <div class="form-group">
@@ -89,7 +61,6 @@
         <label class="form_key ">项目颜色</label>
         <div class="form_val">
             <input type="hidden" name="theme" value="<%=data.theme || 'blue'%>" >
-            <!-- todo: show other theme -->
             <span>red </span>,
             <span>blue </span>
         </div>
@@ -97,7 +68,7 @@
     <div class="form-group">
         <label class="form_key ">&nbsp;</label>
         <div class="form_val">
-            <button type="submit" class="btn btn-success">添加</button>
+            <button type="submit" class="btn_alex btn_alex_success">添加</button>
         </div>
     </div>
 </form>

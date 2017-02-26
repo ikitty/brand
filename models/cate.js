@@ -4,6 +4,16 @@ var Cate = {};
 
 module.exports = Cate;
 
+Cate.getAll = function(callback) {
+    mongodb.open(function (err, db) {
+        if (err) { return callback(err); }
+        db.collection('cate').find().toArray((err, docs) => {
+            mongodb.close();
+            if (err) { return callback(er) ; }
+            callback(null, docs)
+        })
+    });
+};
 Cate.save = function(data, callback) {
     var date = +new Date();
 
@@ -22,16 +32,6 @@ Cate.save = function(data, callback) {
     });
 };
 
-Cate.getAll = function(callback) {
-    mongodb.open(function (err, db) {
-        if (err) { return callback(err); }
-        db.collection('cate').find().toArray((err, docs) => {
-            mongodb.close();
-            if (err) { return callback(er) ; }
-            callback(null, docs)
-        })
-    });
-};
 Cate.getOne = function(query, callback) {
     mongodb.open(function (err, db) {
         if (err) { return callback(err); }
